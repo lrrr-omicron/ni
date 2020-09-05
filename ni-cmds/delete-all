@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+############################
+
+
+SCRIPT="${0}"
+SCRIPT_NAME=$(basename "${SCRIPT}")
+
+
+if [[ "${NI_CONTEXT_DIR}" == "" ]] ; then
+        _die "NI_CONTEXT_DIR undefined!!! You must use a context using the use command to define it" 
+fi
+
+for FILE in "$@" ; do
+	if echo "$FILE" | egrep -iq "^CK[-].*$" ; then 
+		find "${NI_CONTEXT_DIR}/" -name "${FILE}" -print  | while read it ; do
+			REALFILE=`readlink -f "$it"`
+			if [[ -f "${REALFILE}" ]] ; then
+				_info "Deleting ${it}"
+				rm -f "${it}"
+			fi
+		done
+		find "${NI_CONTEXT_DIR}/.meta" -name "${FILE}" -print  | while read it ; do
+			REALFILE=`readlink -f "$it"`
+			if [[ -f "${REALFILE}" ]] ; then
+				_info "Deleting ${it}"
+				rm -f "${it}"
+			fi
+		done
+	else
+		_warn "Won't delete ${FILE} because it has not been ingestd."
+	fi
+done
+
+FILENAMES_DIR="${NI_CONTEXT_DIR}/.meta/FILENAMES"
+# prune empty ones.
+for EMPTY in $(find "${FILENAMES_DIR}" -type d -empty -print)
+do
+        rmdir "$EMPTY"
+done
+

@@ -1,0 +1,315 @@
+#!/usr/bin/env bash
+#####################################################
+# Script: tag
+# Purpose: 
+# ingest the file and create a symbolic link in a descriptive tag folder
+
+if [[ -f "${HOME}/.ni/LAST_NI" ]] ; then
+	THE_FILE=`cat "${HOME}/.ni/LAST_NI"`
+	_info "THE_FILE = ${THE_FILE}"
+	rm "${HOME}/.ni/LAST_NI"
+	ARGS=("$@")
+	ARGS[((1 + ${#ARGS}))]="${THE_FILE}"
+	ni-cmd tag "${ARGS[@]}" || exit $?
+	if [[ -f "${HOME}/.ni/LAST_VIEWER_PID" ]] ; then	
+		DOOMED_PID=`cat "${HOME}/.ni/LAST_VIEWER_PID"`
+		_info "kill -INT ${DOOMED_PID}"
+		kill -INT "${DOOMED_PID}" || >&2 echo "Could not kill viewer."
+		rm "${HOME}/.ni/LAST_VIEWER_PID"
+		exit 0
+	fi 
+fi
+
+if [[ "${NI_CONTEXT_DIR}" == "" ]] ; then 
+	_die "NI_CONTEXT_DIR undefined!!! You must use a context using the use command to define it" 
+fi
+
+if [[ ! -d "${NI_CONTEXT_DIR}" ]] ; then 
+	_info "${NI_CONTEXT_DIR} did not exist, creating it" 
+	mkdir -p "${NI_CONTEXT_DIR}"
+	if [[ "$?" != "0" ]] ; then
+		_die "Could not create NI_CONTEXT_DIR: $NI_CONTEXT_DIR because mkdir -p returned $?"
+	fi
+fi
+# allow this to be overridden
+if [[ "${ALL_TAG}" == "" ]] ; then
+        ALL_TAG="All"
+fi
+ALL_DIR="${NI_CONTEXT_DIR}/${ALL_TAG}"
+if [[ ! -d "${ALL_DIR}" ]] ; then 
+	_info "${ALL_DIR} did not exist, creating it" 
+	mkdir -p "${ALL_DIR}"
+	if [[ "$?" != "0" ]] ; then
+		_die "Could not create ALL_DIR: $ALL_DIR because mkdir -p returned $?"
+	fi
+fi
+
+META_DIR="${NI_CONTEXT_DIR}/.meta"
+if [[ ! -d "${META_DIR}" ]] ; then
+        _info "${META_DIR} did not exist, creating it" >&2
+        mkdir -p "${META_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                _die "Could not create META_DIR: $META_DIR because mkdir -p returned $?"
+        fi
+fi
+
+
+SCRIPT="${0}"
+SCRIPT_NAME=$(basename "${SCRIPT}")
+CMD_NAME="tag"
+
+print_usage () {
+	echo "USAGE: "
+	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] tags and files <-- tries to guess"
+	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] files -t tags"
+	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] tags -f files"
+	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] -f files -t tags"
+	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] -t tags -f files"
+	echo
+	echo "OPTIONS:"
+	echo "	-r		Remove the tags from the files."
+	echo "	-d		Delete the file from the current tag/directory "
+	echo "			when done.  Useful if you are saving your files "
+	echo "			to an Incoming directory and tagging them later,"
+	echo "			this would tag your files then delete them from"
+	echo "			the Incoming tag/folder."
+	echo "	-t tags		Specifies a list of tags"
+	echo "	-f files	Specifies a list of files to tag."
+}
+
+
+DASHT=0
+DASHF=0
+UNTAGGING=0
+DELETING_ORIGINALS=0
+ALIST=()
+TLIST=()
+FLIST=()
+for ARG in "${@}" ; do
+	if [[ "${ARG}" =~ ^-.*$ ]] ;  then
+		case "${ARG}" in
+			-d)
+				if [[ "$UNTAGGING" == "0" ]] ; then
+					DELETING_ORIGINALS=1
+				else 
+					_warn "Not deleting originals on untagging.  Cannot use -d with -r"
+					_die "$(print_usage)'"
+				fi
+			;;
+			-r)
+				if [[ "$DELETING_ORIGINALS" == "0" ]] ; then
+					UNTAGGING=1
+				else 
+					_warn "Not deleting originals on untagging.  Cannot use -d with -r"
+					_die "$(print_usage)"
+				fi
+			;;
+			-f)
+				if [[ "$DASHF" != "0" ]] ; then
+					_warn "Cannot pass -f twice"
+					_die "$(print_usage)"
+				fi
+				DASHF=1
+			;;
+			-t)	
+				if [[ "$DASHT" != "0" ]] ; then
+					_warn "Cannot pass -t twice"
+					_die "$(print_usage)"
+				fi
+				DASHT=1
+			;;
+			-?) 
+				_die "$(print_usage)"
+			;;
+		esac 
+	else
+		if [[ "$DASHF" != "0" ]] ; then
+			FLIST+=("${ARG}")
+		elif [[ "$DASHT" != "0" ]] ; then
+			TLIST+=("${ARG}")
+		else
+			ALIST+=("${ARG}")
+		fi
+	fi
+done
+
+if [[ "$DASHF" == "0" && "$DASHT" == "0" ]] ; then 
+	# if the thing is a file treat it as such, otherwise it's a tag.
+	# will work for files that aren't named the same as any tag.
+	while ((${#ALIST[@]} > 0))
+	do
+		THING="${ALIST[0]}"
+		if [[ -f "${THING}" || -f "${ALL_DIR}/${THING}" ]] ; then 
+			FLIST+=("${THING}") 
+		else 
+			TLIST+=("${THING}") 
+		fi
+		unset ALIST[0]
+		ALIST=("${ALIST[@]}")
+	done
+elif [[ "$DASHF" == "0" && "$DASHT" == "1" ]] ; then 
+	FLIST+=("${ALIST[@]}") 
+elif [[ "$DASHF" == "1" && "$DASHT" == "0" ]] ; then 
+	TLIST+=("${ALIST[@]}") 
+elif [[ "$DASHF" == "1" && "$DASHT" == "1" ]] ; then 
+	if (( ${#ALIST} > 0 )) ; then
+		_warn "Don't know what to do with extra arguments before any -t and -f flags"
+		_warn "Extra stuff: ${ALIST[@]}"
+		_die "$(print_usage)"
+	fi
+fi
+
+if [[ "${TLIST[0]}" == "" ]] ; then 
+	_warn "Must specify at least one tag" 
+	_die "$(print_usage)"
+fi
+
+if [[ "${FLIST[0]}" == "" ]] ; then 
+	_warn "Must specify at least one file to tag" 
+	_die "$(print_usage)"
+fi
+
+# make sure all arguments are regular files
+for FARG in "${FLIST[@]}" ; do
+	if [[ ! -f "${FARG}" ]] ; then	
+		BNF=$(basename "${FARG}")
+		if [[ ! -f "${ALL_DIR}/${BNF}" ]] ; then	
+			_warn "${FARG} was not a file and did not exist in ${ALL_DIR}"
+			_die $(print_usage)
+		fi
+	fi
+done
+
+TAG_DIRS=()
+
+for TAG in "${TLIST[@]}" ; do
+
+	MATCHES=()
+
+	while IFS='	 '   read -r -d $'\0'; do
+		echo $REPLY
+    		MATCHES+=("$REPLY")
+	done < <(find "${NI_CONTEXT_DIR}/" -path ${META_DIR} -prune -o -type d  -name "${TAG}" -print0)
+
+	if (( ${#MATCHES[@]} == 0 )) ; then
+		while IFS='	 '  read -r -d $'\0'; do
+   			MATCHES+=("$REPLY")
+		done < <(find "${NI_CONTEXT_DIR}/" -path ${META_DIR} -prune -o -type d  -name "${TAG}*" -print0)
+		if (( ${#MATCHES[@]} == 0 )) ; then
+			_die "No matches for tag ${TAG} try creating the tag (folder) somewhere in ${NI_CONTEXT_DIR}"
+		fi;
+	fi
+
+	TAG_DIR="${MATCHES[0]}";
+
+	if (( ${#MATCHES[@]} > 1 )) ; then
+		while true; do
+			echo "Matched multiple tags:"
+			echo "----------------------"
+			INDEX=1
+			for MATCH in "${MATCHES[@]}" ; do
+				echo "$INDEX - ${MATCH#${NI_CONTEXT_DIR}/}"
+				((INDEX=$INDEX+1))	
+			done
+			read -p "Enter number of tag you meant: " INDEX
+
+			if egrep -q "^[0-9]+$" <<< "${INDEX}"  ; then
+				((INDEX=$INDEX-1)) # zero indexed in array
+				if (($INDEX < 0)) ; then
+					_warn "Zero selection out of range" 0
+				elif (($INDEX >= ${#MATCHES[@]})) ; then
+					_warn "Selection out of range" 0
+				else 
+					TAG_DIR="${MATCHES[$INDEX]}"
+					break;
+				fi
+			else
+				_warn "You must enter a positive number." 0
+			fi
+		done
+	fi
+
+	TAG_DIRS+=("${TAG_DIR}")
+done
+
+# now we have TLIST and TAG_DIRS verified to exist and disambiguated
+# with their indices corresponding to each other.
+
+# tag index
+TIND=-1
+for TAG in "${TLIST[@]}" ; do
+
+	((TIND=$TIND+1))
+	TAG_DIR="${TAG_DIRS[$TIND]}"	
+ 
+	IND=-1 
+	for FARG in "${FLIST[@]}" ; do
+		((IND=$IND+1))
+		WAS_A_SYMLINK=false
+		if test -f "${FARG}" && test -h "${FARG}" ; then 
+			WAS_A_SYMLINK=true # we don't actually care.  This is a nullop
+		elif test -f "${FARG}" ; then
+			# it was a file
+			FARG=$(ni-cmd ingest "${FARG}")
+			FLIST[${IND}]="$FARG" # use the new name next time
+		else	
+			BNF=$(basename "${FARG}")
+			KNOWNFARG="${ALL_DIR}/${BNF}"
+			if test -f "${KNOWNFARG}" ; then
+				FARG="${KNOWNFARG}"
+				FLIST[${IND}]="$KNOWNFARG" # use the new name next time
+			else	
+				_info "Skipping ${FARG} because it was not a file or a symlink to a file"
+				continue;
+			fi
+		fi
+
+		BN=$(basename "${FARG}")
+		REALFILE=$(readlink -f "${FARG}")
+		REALALL_DIR=$(readlink -f "${ALL_DIR}")
+                REALTAG_DIR=$(readlink -f "${TAG_DIR}")
+		if [[ -f "${TAG_DIR}/${BN}" ]] ; then
+			if [[ "$UNTAGGING" == "1" ]] ; then 
+				if [[ "${REALTAG_DIR}" == "${REALALL_DIR}" ]] ; then
+	                                _info "Not removing tag ${TAG_DIR#${NI_CONTEXT_DIR}/} from ${BN} because that would delete the actual file."
+        	                else
+                	                _info "Removing tag ${TAG_DIR#${NI_CONTEXT_DIR}/} from ${BN}"
+                        	        rm "${TAG_DIR}/${BN}"
+                        	fi
+			else
+				# we're applying the tag
+
+				_info "${BN} already tagged as ${TAG_DIR#${NI_CONTEXT_DIR}/}"
+			fi
+		else 		
+			if [[ "$UNTAGGING" == "1" ]] ; then 
+				 _info ${BN} was not tagged as "${TAG_DIR#${NI_CONTEXT_DIR}/}"
+
+			else
+				# we're applying the tag
+				_info "Tagging ${BN} as ${TAG_DIR#${NI_CONTEXT_DIR}/}"
+				ln -s "${REALFILE}" "${TAG_DIR}/${BN}"
+		
+			fi
+		fi
+	done
+done
+
+if [[ "$DELETING_ORIGINALS" == "1" ]] ; then
+	for FARG in "${FLIST[@]}" ; do
+		if [[ -L "${FARG}" ]] ; then
+			_info "Removing symlink: ${FARG}"
+			rm "${FARG}"
+		else 
+			_info "Not removing actual file: ${FARG}"
+		fi
+
+		THIS_DIR_FARG="$(basename "$FARG")"
+		if [[ -L "${THIS_DIR_FARG}" ]] ; then
+			_info "Removing symlink: ${THIS_DIR_FARG}"
+			rm "${THIS_DIR_FARG}"
+		else 
+			_info "Not removing actual file: ${THIS_DIR_FARG}"
+		fi
+	done
+fi

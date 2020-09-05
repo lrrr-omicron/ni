@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+NI_LOG_LEVEL_DEBUG=10
+NI_LOG_LEVEL_INFO=20
+NI_LOG_LEVEL_WARN=30
+NI_LOG_LEVEL_ERROR=40
+NI_LOG_LEVEL_SILENT=50
+
+# use NI_LOG_LEVEL from environment or else use a default
+if [[ "$NI_LOG_LEVEL" == "" ]] ; then
+	NI_LOG_LEVEL="$NI_LOG_LEVEL_INFO"
+fi
+
+# logging functions
+function _debug {
+	local save_code=$? # don't lose this!
+	if [[ $NI_LOG_LEVEL -gt $NI_LOG_LEVEL_DEBUG ]] ; then 
+		return
+	fi
+	local message="$1"
+	local code="$2"
+	[ -z "$code" ] && code=$save_code
+	[ -z "$message" ] && message="empty debug message"
+
+	local numre='^[0-9]+$'
+	if ! [[ $code =~ $numre ]] ; then
+		>&2 echo "Warning nonnumeric code: [$code] using code 1"
+		code=1
+	fi
+	if [[ $code -lt 0 || $code -gt 255 ]] ; then
+		>&2 echo "Code was out of range - using 1 instead. Code passed: $code"
+		code=1
+	fi
+
+	>&2 echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $code - $message"
+}
+
+
+function _info {
+	if [[ $NI_LOG_LEVEL -gt $NI_LOG_LEVEL_INFO ]] ; then 
+		return
+	fi
+	local message="$1"
+	local code="$2"
+	[ -z "$message" ] && message="empty info message"
+	[ -z "$code" ] && code="0"
+
+	if [[ "$code" != "0" ]] ; then
+		_info "Reposting non zero code [$code] info message as warning"
+		_warn "$message" "$code"
+		return
+	fi
+
+	if [[ $NI_LOG_LEVEL -lt $NI_LOG_LEVEL_INFO ]] ; then
+		>&2 echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $code - $message"
+	else 
+		if [[ "$code" == "0" ]] ; then 
+			>&2 echo "$message"
+		else 
+			>&2 echo "$code - $message"
+		fi
+	fi
+}
+
+
+function _warn {
+	if [[ $NI_LOG_LEVEL -gt $NI_LOG_LEVEL_WARN ]] ; then 
+		return
+	fi
+	local message="$1"
+	local code="$2"
+
+	[ -z "$code" ] && code="1"
+	local numre='^[0-9]+$'
+	if ! [[ $code =~ $numre ]] ; then
+		>&2 echo "Warning nonnumeric code: [$code] using code 1"
+		code=1
+	fi
+	if [[ $code -lt 0 || $code -gt 255 ]] ; then
+		>&2 echo "Code was out of range - using 1 instead. Code passed: $code"
+		code=1
+	fi
+
+	if [[ $code != 0 ]] ; then 
+		>&2 echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $code - $message."
+	else
+		>&2 echo "$message"
+	fi
+}
+
+function _die {
+	local message="$1"
+	local code="$2"
+	[ -z "$message" ] && message="Died"
+	[ -z "$code" ] && code=1
+	local numre='^[0-9]+$'
+	if ! [[ $code =~ $numre ]] ; then
+		if [[ $NI_LOG_LEVEL -le $NI_LOG_LEVEL_ERROR ]] ; then 
+			>&2 echo "Warning nonnumeric exit code: [$code] exiting with code 1"
+		fi
+		code=1
+	fi
+	if [[ "$code" == "0" ]] ; then
+		if [[ $NI_LOG_LEVEL -le $NI_LOG_LEVEL_ERROR ]] ; then 
+			>&2 echo "Die is for errors. Exiting with code 1 instead of passed 0."
+		fi
+		code=1 
+	fi
+	if [[ $code -lt 0 || $code -gt 255 ]] ; then
+		if [[ $NI_LOG_LEVEL -le $NI_LOG_LEVEL_ERROR ]] ; then 
+			>&2 echo "Exit code was out of range - using 1 instead. Exit code passed: $code"
+		fi
+		code=1
+	fi
+		
+	if [[ $NI_LOG_LEVEL -le $NI_LOG_LEVEL_ERROR ]] ; then 
+		>&2 echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $code - $message."
+	fi
+	exit "$code"
+}
+
+NI_COMMON_LOADED=1

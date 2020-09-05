@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+#
+# This script is meant to be sourced not executed to specify the 
+# ni context.
+#
+# eg: source ni-use mypics
+#
+# environment variables:
+# 
+# NI_IMAGE_DIR ( defaults to $HOME ).  Directory containing contexts underneath. 
+# 
+# If all your pics are under $HOME/Pictures, use that as NI_IMAGE_DIR.
+#
+# Or perhaps you keep your clean photos in Pictures and your private collection 
+# in ${HOME}/.boogaly-pictures
+#
+# You would do
+# 
+# 	source ni-use Pictures 
+#
+# to sort your regular pictures and
+# 
+#	source ni-use .boogaly-pictures to sort your 'private' ones.
+# 
+# contexts are just directories so if you export NI_IMAGE_DIR=/ then you can 
+# ignore NI_IMAGE_DIR and pass full pathnames to image collection directories as 
+# contexts.  NI_IMAGE_DIR just lets you shorten context names for convenience.
+
+
+NI_COMMON_DIR="$(dirname `which ni-cmd`)/common"
+if ! [[ -d  "${NI_COMMON_DIR}" ]] ; then
+        >&2 echo "Missing ni common dir: ${NI_COMMON_DIR}"
+	>&2 echo "Not dying because if you sourced this script as you should, "
+	>&2 echo "it would kill your terminal window which would be quite rude."
+	>&2 echo ""
+	>&2 echo "Sorry, for the junk that follows, but I seem to be missing"
+	>&2 echo "part of my brain..."
+fi
+
+# hereafter use _die from ni-common
+test -z "${NI_PREAMBLE_LOADED}" && source "${NI_COMMON_DIR}/ni-common"
+
+
+SOURCED=0
+[[ $_ != $0 ]] && SOURCED=1 
+if [[ "$SOURCED" != "1" ]] ; then
+	_warn "REMINDER: This script must be sourced into your shell "
+	_warn "call as: 'source ni-use context'"
+	# It's ok to die here because we were incorrectly NOT sourced, so it
+	# won't kill their terminal window.
+	_die "script must be sourced not run."
+fi 
+
+# from here on out we can count on the fact we're being sourced..  We use return so exit doesn't kill their terminal.
+
+if [[ "$NI_IMAGE_DIR" == "" ]] ; then 
+	_info "NI_IMAGE_DIR empty, setting NI_IMAGE_DIR to $HOME"
+	export NI_IMAGE_DIR="$HOME"
+fi
+if [[ ! -d "$NI_IMAGE_DIR" ]] ; then 
+	_info "Creating NI_IMAGE_DIR = $NI_IMAGE_DIR"
+	if [[ ! -e "$NI_IMAGE_DIR" ]] ; then 
+		if [[ ! -d `readlink -f $NI_IMAGE_DIR` ]] ; then
+			_info "NI_IMAGE_DIR $NI_IMAGE_DIR existed but was not a directory"
+			_info "Perhaps you are using an encrypted porn folder that's linked to by a symlink which has not been mounted?"
+			return 1
+		fi
+		mkdir -p "$NI_IMAGE_DIR"
+	fi
+
+	if [[ "$?" != "0" ]] ; then
+		_info "Error $? creating directory $NI_IMAGE_DIR"
+		return 1
+	fi
+fi
+
+NI_CONTEXT="$1"
+
+if [[ "$NI_CONTEXT" == "" ]] ; then
+	_die "USAGE: source ni-use Context"
+fi		
+
+NI_CONTEXT_DIR="$NI_IMAGE_DIR/$NI_CONTEXT"
+if [[ ! -d "$NI_CONTEXT_DIR" ]] ; then 
+	_info "Creating NI_CONTEXT_DIR = $NI_CONTEXT_DIR"
+	mkdir -p "$NI_CONTEXT_DIR"
+	if [[ "$?" != "0" ]] ; then
+		_warn "Error $? creating directory $NI_CONTEXT_DIR"
+	fi
+fi
+
+export NI_CONTEXT_DIR="${NI_CONTEXT_DIR}"
+cd "${NI_CONTEXT_DIR}"
+_info "Using context: "$(basename "$NI_CONTEXT_DIR")""

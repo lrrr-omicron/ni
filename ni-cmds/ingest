@@ -1,0 +1,166 @@
+#!/usr/bin/env bash:
+#########################################################
+# Script ingest
+#
+# purpose save file renamed to it's own ck sum.  No longer uses mat to 
+# anonymize media.  Download shit using tor if you're gonna share it.
+# mat never ruled out watermarks or stego anyway.
+# 
+# The real file is stored in ALL_DIR and the file is replaced with 
+# a symbolic link to that file.
+#
+# Also the original filename is preserved by storing another symbolic link to 
+# the file in .meta/FILENAMES/the-original-filename/ck-blahblahblach.ext 
+# linking to the real file.  The directory the-original-filename is named
+# according to whatever the original file was and may contain multiple links
+# to real files named with their ck sums.  For instance you might download
+# many files named 1.jpg.  They may be different pictures.  Links to all the 
+# files named 1.jpg will be stored in the 1.jpg folder in .meta/FILENAMES
+#
+# USAGE ingest file
+
+
+if [[ "${NI_CONTEXT_DIR}" == "" ]] ; then
+	_die "NI_CONTEXT_DIR undefined!!! You must use a context using the use command to define it" 
+fi
+
+
+if [[ ! -d "${NI_CONTEXT_DIR}" ]] ; then
+        _info "${NI_CONTEXT_DIR} did not exist, creating it" 
+        mkdir -p "${NI_CONTEXT_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                _die "Could not create NI_CONTEXT_DIR: $NI_CONTEXT_DIR because mkdir -p returned $?"
+        fi
+fi
+
+# allow this to be overridden
+if [[ "${ALL_TAG}" == "" ]] ; then 
+	ALL_TAG="All"
+fi
+ALL_DIR="${NI_CONTEXT_DIR}/${ALL_TAG}"
+if [[ ! -d "${ALL_DIR}" ]] ; then
+        _info "${ALL_DIR} did not exist, creating it" 
+        mkdir -p "${ALL_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                _die "Could not create ALL_DIR: $ALL_DIR because mkdir -p returned $?"
+        fi
+fi
+
+META_DIR="${NI_CONTEXT_DIR}/.meta"
+if [[ ! -d "${META_DIR}" ]] ; then
+        _info "${META_DIR} did not exist, creating it" 
+        mkdir -p "${META_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                _die "Could not create META_DIR: $META_DIR because mkdir -p returned $?"
+        fi
+fi
+
+FILENAME="${1}"
+
+
+if [[ ! -e "${FILENAME}" ]] ; then
+	_die "${FILENAME} did not exist."
+fi
+
+if [[ ! -f "${FILENAME}" ]] ; then
+	_die "${FILENAME} was not a file." 
+fi
+
+
+FILEDIR=$(dirname "${FILENAME}")
+FILEBASENAME=$(basename "${FILENAME}")
+
+
+# if the file is a symlink don't ingest
+if test -h "${FILENAME}" ; then 
+	echo "${FILENAME}"
+	exit 0; 
+fi
+
+# if the file has this kind of name it's already been ingested.  don't do it 
+# twice
+if echo "${FILEBASENAME}" | egrep -iq "^ck-[0-9]+[.]" ; then
+	echo "${FILENAME}"
+	exit 0
+fi
+
+if test -h "${FILENAME}" ; then
+	echo "${FILENAME}"
+	exit 0
+fi
+
+# this variable is lower case no matter what
+if echo "${FILEBASENAME}" | egrep -iq "[.]" ; then 
+	typeset -l EXT="${FILENAME##*.}"
+else 
+	typeset -l EXT=""
+fi
+
+if [[ "${EXT}" == "" ]] ; then
+	file --extension "${FILENAME}" | read NAME EXTS
+	BESTEXT='unknown'
+	echo "EXTS=$EXTS" >&2
+	if [[ "${EXTS}" != "???" ]] ; then
+		echo "${EXTS}" | sed 's/\//\n/g' | while read THE_EXT 
+		do
+			if echo "${THE_EXT}" | egrep '^...$' ; then
+				# prefer three letter extensions
+				BESTEXT="${THE_EXT}"
+				break;
+			else
+				# prefer shortest extension
+				if [[ ${#BESTEXT} -gt ${#THE_EXT} ]] ; then
+					BESTEXT="${THE_EXT}"
+				fi
+			fi
+		done
+	fi
+	EXT="${BESTEXT}"
+elif echo "${EXT}" | egrep -iq '^jpeg$' ; then
+	EXT='jpg'
+fi
+
+# This was never secure due to steganography  Rely on only downloading files 
+# that you might share using tor.   Also this uses ancient python which I 
+# don't want on my system. python is python3
+#mat "${FILENAME}" >&2 || echo "mat (media anonymization toolkit) does not support this filetype"
+
+ORIGINAL_BASE_FILENAME="${FILEBASENAME}"
+CKRES=$(cksum "${FILENAME}")
+CKSUM=$(echo $CKRES | cut -d ' ' -f 1);
+CKSIZE=$(echo $CKRES | cut -d ' ' -f 2);
+CKSUM="${CKSUM}${CKSIZE}" 
+NEW_FILENAME="${FILEDIR}/ck-${CKSUM}.${EXT}"
+NEW_BASENAME=$(basename "${NEW_FILENAME}")
+ALL_FILENAME="${ALL_DIR}/${NEW_BASENAME}"
+
+ALREADY_EXISTS=0
+if [[ -e "${ALL_FILENAME}" ]] ; then
+	ALREADY_EXISTS=1
+	_info "\"${FILENAME}\" duplicate" 
+	_info "rm  \"${FILENAME}\""
+	rm "${FILENAME}" 
+else
+	_info "mv \"${FILENAME}\" \"${ALL_FILENAME}\"" 
+	mv "${FILENAME}" "${ALL_FILENAME}"
+	_info "ln -s \"${ALL_FILENAME}\" \"${NEW_FILENAME}\"" 
+	ln -s "${ALL_FILENAME}" "${NEW_FILENAME}"
+fi
+
+
+
+# don't override manually set filenames with less meaningful incoming ones
+if [[ "$ALREADY_EXISTS" == "0" ]] ; then 
+	FILENAME_DIR="${META_DIR}/FILENAMES/${ORIGINAL_BASE_FILENAME}"
+	if [[ ! -d "${FILENAME_DIR}" ]] ; then
+		_info "${FILENAME_DIR} did not exist, creating it" >&2
+		mkdir -p "${FILENAME_DIR}"
+		if [[ "$?" != "0" ]] ; then
+			_die "Could not create FILENAME_DIR: $FILENAME_DIR because mkdir -p returned $?"
+		fi
+	fi
+	# save a link to the file in a directory named after the original filename.
+	ln -s "${ALL_FILENAME}" "${FILENAME_DIR}/${NEW_BASENAME}"
+fi
+
+echo ${ALL_FILENAME}

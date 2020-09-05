@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+ARGS=("$@") #sourcing ni-common clobbers these
+NI_CMD="${BASH_SOURCE[0]}"
+NI_CMDS_DIR="$(dirname "${NI_CMD}")"
+NI_COMMON_DIR="${NI_CMDS_DIR}/common"
+if ! [[ -d  "${NI_COMMON_DIR}" ]] ; then
+	>&2 echo "Missing ni-common dir: ${NI_COMMON_DIR}"
+	exit 1
+fi
+# hereafter use _die from ni-common
+test -z "${NI_PREAMBLE_LOADED}" && source "${NI_COMMON_DIR}/ni-common"
+set -- "${ARGS[@]}" # restore args
+
+NI_CMDS="${NI_CMDS_DIR}/ni-cmds"
+
+test -d "${NI_CMDS}" || _die "Missing ni-cmds dir: ${NI_CMDS}"
+THE_CMD=`basename "$1"`
+
+if [[ -f "${NI_CMDS_DIR}/${THE_CMD}" ]] ; then
+	THE_CMD="${NI_CMDS_DIR}/${THE_CMD}"
+elif [[ -d "${NI_CMDS_DIR}/ni-cmds" ]] ; then
+	THE_CMD="${NI_CMDS_DIR}/ni-cmds/${THE_CMD}"
+else
+	_die "Could not find ni-cmd: ${THE_CMD} in dir: ${NI_CMDS_DIR}/ni-cmds" 1
+fi
+
+shift # take the name of the command off the args
+_debug "$THE_CMD $@"
+source "${THE_CMD}" 
+

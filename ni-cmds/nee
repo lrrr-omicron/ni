@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#############################
+
+# TODO: find out what types are actually supported by feh and mpv and add them
+FEHTYPES='jpeg|jpg|jfif|png|gif|webp'
+MPVTYPES='webm'
+FOUNDFILE=''
+TAGS=()
+# list ignoring the temp files feh creates in the current directory
+while read it
+do
+	FOUNDFILE="$it"	
+	if egrep -iq '[.]('"${FEHTYPES}"i')$' <<< "${it}" ; then
+		feh --scale-down --draw-exif "$it" &
+		echo "$!" > "${HOME}/.ni/LAST_VIEWER_PID"
+	elif egrep -iq '[.]('"${MPVTTPES}"'webm)$' <<< "${it}" ; then
+		mpv --profile=pseudo-gui --loop-file "${it}" &
+		echo "$!" > "${HOME}/.ni/LAST_VIEWER_PID"
+	else
+		rm -f "${HOME}/.ni/LAST_VIEWER_PID"
+		_die "No known opener for ${it}"
+	fi
+
+	mkdir -p "${HOME}/.ni"
+	echo "${it}" > "${HOME}/.ni/LAST_NI"
+	printf "Enter tags for $it: "
+	read -a TAGS < /dev/tty # read from tty even though we're redirected
+done <<< $(ls  | egrep '[.]('"${FEHTYPES}|${MPVTYPES}"')$' | egrep -v 'feh_[0-9]+_[0-9]+_' | tail -1) 
+
+test -z "$FOUNDFILE" && _die "No eligable files found in current directory."
+exec ni-cmd tag -d "${FOUNDFILE}" "${TAGS[@]}"

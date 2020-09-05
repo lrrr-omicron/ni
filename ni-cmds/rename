@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+##############################
+# Script rename
+# 
+# Purpose: this is a wrapper around set-filename. It's designed to be
+# as quick and safe as possible.  However if the bumpers get in the way
+# set-filename called directly will still do what you want.
+# 
+# USAGE: rename the-filename new-meaningful-filename
+#
+# the-filename will be something like ck-12345.jpg
+# new-meaningful-filename will be something like my-titty-picture
+# 
+# the meaningful name is only viewable with get-name. 
+# 
+# if the new-meaningful-filename contains dots this script exits doing 
+# nothing.   Call set-filename directly to change extension.  sf creates the
+# new filename using the extension from the-filename. You can't change 
+# extensions with rename.  This buys you not having to look at or type them and
+# is the main purpose of rename over rename-raw.  Also we enforce some file naming standards.
+
+
+SCRIPT="${0}"
+SCRIPT_NAME=$(basename "${SCRIPT}")
+FILENAME="${1}"
+NEW_FILENAME="${2}"
+REST="${3}"
+
+if [[ "${FILENAME}" = "" ]] ; then
+	_warn "Usage: $SCRIPT_NAME ck-blahblah.xxx newfilename"
+	_die echo "It's ok to reverse the arguments as long as the newfilename lacks an extension"
+fi
+
+if [[ "${NEW_FILENAME}" = "" ]] ; then
+	_warn "Usage: $SCRIPT_NAME ck-blahblah.xxx newfilename"
+	_die "It's ok to reverse the arguments as long as the newfilename lacks an extension"
+fi
+
+EXT=""	
+if echo "${FILENAME}" | grep -Eq "^.*[.].*$" ; then
+	EXT="${FILENAME##*.}"
+fi
+
+NEW_EXT=""
+if echo "${NEW_FILENAME}" | grep -Eq "^.*[.].*$" ; then
+	NEW_EXT="${NEW_FILENAME##*.}"
+fi
+
+if [[ "$EXT" = "" ]] ; then
+	if [[ "$NEW_EXT" = "" ]] ;  then
+		_die echo "Original file extension was null  I don't know what to do.  Quitting."
+	else
+		# user accidentally reversed the arguments.  That's ok we 
+		# will handle the switcheroo here.
+		TMP_EXT="$EXT"
+		EXT="$NEW_EXT"	
+		NEW_EXT="$TMP_EXT"
+
+		TMP_FILENAME="$FILENAME"
+		FILENAME="$NEW_FILENAME"
+		NEW_FILENAME="$TMP_FILENAME"
+	fi
+fi
+
+
+#RE='^.*[	 ].*$' 
+#if echo "${NEW_FILENAME}" | grep -Eq "${RE}"  ; then 
+#	>&2 echo "Don't put spaces or tabs in filenames. They're annoying."
+#	exit 1
+#fi
+
+
+if [[ "$NEW_EXT" != "" ]] ; then
+	if [[ "$NEW_EXT" != "$EXT" ]] ; then 
+		_die "You tried to change the file extension from $EXT to $NEW_EXT. Quitting."
+	else 
+		# strip off ext
+		NEW_FILENAME="${NEW_FILENAME%.*}"
+	fi
+fi
+
+NEW_FILENAME_WITH_EXT="${NEW_FILENAME}.${EXT}"
+
+np-cmd rename-raw "$FILENAME" "$NEW_FILENAME_WITH_EXT"

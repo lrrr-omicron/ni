@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+##############################
+# Script rename-raw
+# 
+# Purpose: We store the 'original' filenames in .meta directory in the context
+# 
+# rename-raw allows you to change it
+#
+# USAGE: rename-raw the-filename new-meaningful-filename
+#
+# the-filename will be something like ck-12345.jpg
+# new-meaningful-filename will be something like my-titty-picture.jpg
+# 
+# the meaningful name is only viewable with get-name. 
+
+if [[ "${NI_CONTEXT_DIR}" == "" ]] ; then
+	echo "NI_CONTEXT_DIR undefined!!! You must use a context using the use command to define it" >&2
+
+        exit 1
+fi
+
+
+if [[ ! -d "${NI_CONTEXT_DIR}" ]] ; then
+        >&2 echo "${NI_CONTEXT_DIR} did not exist, creating it"
+        mkdir -p "${NI_CONTEXT_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                echo "Could not create NI_CONTEXT_DIR: $NI_CONTEXT_DIR because mkdir -p returned $?"
+                exit 1
+        fi
+fi
+
+# allow this to be overridden
+if [[ "${ALL_TAG}" == "" ]] ; then
+        ALL_TAG="All"
+fi
+ALL_DIR="${NI_CONTEXT_DIR}/${ALL_TAG}"
+if [[ ! -d "${ALL_DIR}" ]] ; then
+        >&2 echo "${ALL_DIR} did not exist, creating it"
+        mkdir -p "${ALL_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                echo "Could not create ALL_DIR: $ALL_DIR because mkdir -p returned $?"
+                exit 1
+        fi
+fi
+
+
+META_DIR="${NI_CONTEXT_DIR}/.meta"
+if [[ ! -d "${META_DIR}" ]] ; then
+        # >&2 echo "${META_DIR} did not exist, creating it" 
+        mkdir -p "${META_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                >&2 echo "Could not create META_DIR: $META_DIR because mkdir -p returned $?"
+                exit 1
+        fi
+fi
+
+SCRIPT="${0}"
+SCRIPT_NAME=$(basename "${SCRIPT}")
+FILENAME="${1}"
+NEW_FILENAME="${2}"
+REST="${3}"
+
+
+
+if [[ ! -e "${FILENAME}" ]] ; then
+	_die "${FILENAME} did not exist." >&2
+fi
+
+if [[ ! -f "${FILENAME}" ]] ; then
+	_die "${FILENAME} was not a file." 
+fi
+
+if [[ "${REST}" != "" ]] ; then
+	_die "USAGE: ${SCRIPT_NAME} file new-filename"
+fi
+
+
+if [[ "$FILENAME" != $(basename "$FILENAME") ]] ; then
+	_die "Don't enter path of filename, just the basename"
+fi
+
+if [[ "$NEW_FILENAME" != $(basename "$NEW_FILENAME") ]] ; then
+	_die echo "Don't enter path of new filename, just the basename"
+fi
+
+FILENAMES_DIR="${META_DIR}/FILENAMES"
+FILENAME_DIR="${FILENAMES_DIR}/${NEW_FILENAME}"
+
+FILENAME=$(ingest "${FILENAME}")
+FILEBASENAME=$(basename "$FILENAME")
+
+# delete all other names it may have had.
+for NAME in $(find "${FILENAMES_DIR}" -name "${FILEBASENAME}" -print) 
+do
+	PARENT_DIR=$(dirname "${RESULT}")
+	rm -f "$NAME"
+done
+# prune empty ones.
+for EMPTY in $(find "${FILENAMES_DIR}" -type d -empty -print)
+do
+	rmdir "$EMPTY"
+done
+
+if [[ ! -d "${FILENAME_DIR}" ]] ; then
+        # >&2 echo "${FILENAME_DIR} did not exist, creating it" 
+        mkdir -p "${FILENAME_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                _die "Could not create FILENAME_DIR: $FILENAME_DIR because mkdir -p returned $?" 1
+        fi
+fi
+
+BASENAME=$(basename "${FILENAME}")
+ALL_FILENAME="${ALL_DIR}/${BASENAME}"
+
+if [[ ! -e "${FILENAME_DIR}/${BASENAME}" ]] ; then 
+	# save a link to the file in a directory named after the original filename.
+	ln -s "${ALL_FILENAME}" "${FILENAME_DIR}/${BASENAME}"
+fi
+_info "Filename ${NEW_FILENAME} stored for ${BASENAME}."

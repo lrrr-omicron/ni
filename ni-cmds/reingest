@@ -1,0 +1,53 @@
+!/usr/bin/env bash
+###########################################
+SCRIPT="${0}"
+SCRIPT_NAME=$(basename "${SCRIPT}")
+
+
+if [[ "${NI_CONTEXT_DIR}" == "" ]] ; then
+        _die "NI_CONTEXT_DIR undefined!!! You must use a context using the use command to define it"
+fi
+
+
+if [[ ! -d "${NI_CONTEXT_DIR}" ]] ; then
+        _info "${NI_CONTEXT_DIR} did not exist, creating it"
+        mkdir -p "${NI_CONTEXT_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                _die "Could not create NI_CONTEXT_DIR: $NI_CONTEXT_DIR because mkdir -p returned $?"
+        fi
+fi
+
+# allow this to be overridden
+if [[ "${ALL_TAG}" == "" ]] ; then
+        ALL_TAG="All"
+fi
+ALL_DIR="${NI_CONTEXT_DIR}/${ALL_TAG}"
+if [[ ! -d "${ALL_DIR}" ]] ; then
+        _info "${ALL_DIR} did not exist, creating it" 
+        mkdir -p "${ALL_DIR}"
+        if [[ "$?" != "0" ]] ; then
+                _die "Could not create ALL_DIR: $ALL_DIR because mkdir -p returned $?"
+        fi
+fi
+
+find "${NI_CONTEXT_DIR}/" -type f -regextype egrep -not -regex '.*/ck-[0-9]+[.][^.]*' -a -not -regex '.*[.][tT][xX][tT]$'-a -not -regex '.*[.][hH][tT][mM][lL]$' -a -not -regex '.*[.][mM][dD]$' -a -not -regex '.*[.][sS][wW][pP]$'  -exec ni-cmd ingest {} \;
+DID_BLURB=0
+PANDOC="$(which pandoc)"
+find "${NI_CONTEXT_DIR}/" -type f -regextype egrep -regex '.*[.][mM][dD]$' | while read it
+do
+	if [[ "$DID_BLURB" == "0" ]] ; then
+		if [[ "${PANDOC}" != */pandoc ]] ; then
+		aDID_BLURB=1
+			>&2 echo "Install pandoc and ${SCRIPT_NAME} will generate html files from any .md files you place in your tag directories.  A good use would be to document what the meaning of the tag is in what-goes-here.md which would be used to update what-goes-here.html"
+		fi			
+	fi
+
+	HTML="${it%.*}"
+
+	if [[ "$DID_BLURB" == "0" ]] ; then
+		if [[ ! -f "${HTML}" || "${it}" -nt "${HTML}" ]] ; then
+			pandoc -o "${it%.*}.html" -i "${it}"
+		fi
+	fi
+done
+
