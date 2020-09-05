@@ -88,8 +88,77 @@ you also get a notporn/.meta directory with a directory named pic-of-my-dog.jpg 
 It has one symlink named  ck-293042304320932.jpg pointing back to notporn/All/ck-293042304320932.jpg
 
 You can retrieve the original filename by doing 
- notporn/All/ck-293042304320932.jpg
-  $ ni-cmd get-name 
+ 
+  $ ni-cmd get-name ck-293042304320932.jpg
+  3374855 - pic-of-my-dog.jpg
+  
+  You can do eg:
+  
+  $ ls | while read f
+  do
+    echo "$f - "`ni-cmd get-name $f`
+  done
+  
+  to print out all the original names.  
+  
+  here are some commands 
+ 
+  $ ls ~/opt/ni/ni-cmds
+delete-all  inf     nee       rename      tag
+get-name    ingest  reingest  rename-raw  untag
+
+ most of these you won't use.  nee is private, use ~/opt/ni/ni instead
+ 
+  $ ni-cmd inf ck-293042304320932.jpg
+  
+UNIQUE_FILENAME: ck-293042304320932.jpg
+FILENAME: 3374855 - pic-of-my-dog.jpg
+
+TAGS:
+----------------------------
+/home/anon/notporn
+
+Since this file has not been tagged, it just prints the path to the context here.  But if we tag it we can see something good.
+
+  $ ni-cmd tag -d ck-293042304320932.jpg ani do 
+  
+
+  Matched multiple tags:
+  ----------------------
+  1 - cute/dogs
+  2 - tasty/donuts
+  Enter number of tag you meant: 1
+  <spewtum outlining what was done>
+  Tagging ck-293042304320932.jpg as cute/dogs
+  Tagging ck-293042304320932.jpg as cute/animals
+  Removing symlink: ck-293042304320932.jpg 
+  
+  
+  In fact we didn't need to ingest the file we could have just tagged the original file and it would have been autoatically ingested first.
+  
+  Tags are just directories in your context and the tag command searches for the best match for what you passed. You can tag multiple files with multiple tags.  -d deletes the file from the current directory.  You can have an incoming 'tag' where you save your pics and then go through and tag them.
+  
+  You can specify files with -f or tags with -t or YOU CAN RANDOMLY MIX TAGS AND FILENAMES WITHOUT MENTIONING WHICH IS WHICH and the tag command will figure out which is which.
+  
+  These commands have been useful in sorting pic collections, but it has required having a viewer open and copying the filenames of the file I'm looking at and pasting it into a terminal window to do the tagging.  Pretty fast but not really satisfactory for many photos.
+  
+  But that's where the ni command comes in.
+  
+    $ source ni-use pic-collection
+    $ cd incoming-downloads
+    $ ni
+    
+  ni will list the current directory, get the next filename, open the appropriate viewer, run the ni-cmd tag -d command for you prompting you for the tags for the pic/vid/etc you are viewing and then kill the viewer for you.
+  
+  then just type ni again and you can tag the next pic.
+  
+ 
+  
+  
+  
+  
+  
 
 
+  
  
