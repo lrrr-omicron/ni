@@ -28,4 +28,5 @@ do
 done <<< $(ls  | egrep '[.]('"${FEHTYPES}|${MPVTYPES}"')$' | egrep -v 'feh_[0-9]+_[0-9]+_' | tail -1) 
 
 test -z "$FOUNDFILE" && _die "No eligable files found in current directory."
+>&2 echo exec ni-cmd tag -d "${FOUNDFILE}" "${TAGS[@]}"
 exec ni-cmd tag -d "${FOUNDFILE}" "${TAGS[@]}"

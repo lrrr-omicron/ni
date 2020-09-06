@@ -4,12 +4,13 @@
 # Purpose: 
 # ingest the file and create a symbolic link in a descriptive tag folder
 
+
 if [[ -f "${HOME}/.ni/LAST_NI" ]] ; then
 	THE_FILE=`cat "${HOME}/.ni/LAST_NI"`
 	_info "THE_FILE = ${THE_FILE}"
 	rm "${HOME}/.ni/LAST_NI"
 	ARGS=("$@")
-	ARGS[((1 + ${#ARGS}))]="${THE_FILE}"
+	>&2 echo ni-cmd tag "${ARGS[@]}" || exit $?
 	ni-cmd tag "${ARGS[@]}" || exit $?
 	if [[ -f "${HOME}/.ni/LAST_VIEWER_PID" ]] ; then	
 		DOOMED_PID=`cat "${HOME}/.ni/LAST_VIEWER_PID"`
