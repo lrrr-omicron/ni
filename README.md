@@ -81,7 +81,8 @@ The stuff in ni-cmd still has usage statements unedited from when they used to b
 you to prefix them with ni-cmd Eg: 
 
 ```
-$ source use notporn # only needs to be done once until you close your terminal or switch to another context
+$ source use notporn # only needs to be done once until you
+                     # close your terminal or switch to another context
 $ ni-cmd reingest # This will totally fuck up your notporn collection!
 ck-293042304320932.jpg
 ```
@@ -117,6 +118,16 @@ done
 ```
 
 to print out all the original names.  
+
+When a file is ingested the name it originally had is stored.  But we do not allow files to have more than one name.  So if you try to ingest the same file named with another name, then we don't store the second name the file was ingested with.  
+
+This is because of three things:
+
+1) We want files to have only one name.   
+2) You can manually set the name to whatever you want using ni-cmd rename
+3) We assume the name the file already has is better than whatever the original name of the file was - you may have manually set it.
+
+Lots of times downloaded files are named things like 1.jpg.  That name shouldn't take precedence over a manually set name.  Also this data is pretty much junk.  It's a starting point if there's nothing else to stick in there for name, but not much good otherwise.  The advantages of storing it and allowing files to have more than one name seem to be less than the advantages of having one name per file, as that encourages manually setting descriptive names.    However filenames are functionally just a tag, though we ignore them during tagging so you can intelligently structure your tags to avoid disambiguation prompts, so they are not quite the same as tags.  Think of them as tags you can only see with ni-cmd get-name with the restriction that each file can only have one, though one name might refer to many different files. (eg: 1.jpg probably refers to 100 files )  
   
 Here are some commands.  These used to be standalone.  Now they must be called prefixed with ni-cmd.  TODO: update docs/usage statements to reflect that 
  
