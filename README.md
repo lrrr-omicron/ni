@@ -2,7 +2,7 @@
 Media sorter/tagger (very alpha - I've used it for a while but am just now packaging it up for others to maybe use which is incomplete)
 
 
-###Installation:
+### Installation:
 
 put the ni folder somewhere and put that folder into your path
 
