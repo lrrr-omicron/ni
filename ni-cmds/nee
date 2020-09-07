@@ -23,7 +23,7 @@ FEH_LIMITED_SUPPORT_TYPES="otf|raw|svg|xcf"
 FEH_MANPAGE_LISTED_TYPES="bmp|(jfif|jpeg|jpg)|png|pnm|tiff"
 FEHTYPES="${FEH_MANPAGE_LISTED_TYPES}|${FEH_LIMITED_SUPPORT_TYPES}"
 MVP_VIDEO_TYPES='avi|mov|mp4|ogg|wmv|webm|gif'
-MVP_AUDIO_TYPES='mp3|ogg|wav'
+MVP_AUDIO_TYPES='mp3|ogg|wav|webm'
 MPVTYPES="${MPV_VIDEO_TYPES}|${MPV_AUDIO_TYPES}"
 FOUNDFILE=''
 TAGS=()
@@ -34,7 +34,7 @@ do
 	if egrep -iq '[.]('"${FEHTYPES}"i')$' <<< "${it}" ; then
 		feh --scale-down --draw-exif "$it" &
 		echo "$!" > "${HOME}/.ni/LAST_VIEWER_PID"
-	elif egrep -iq '[.]('"${MPVTTPES}"'webm)$' <<< "${it}" ; then
+	elif egrep -iq '[.]('"${MPVTTPES}"')$' <<< "${it}" ; then
 		mpv --profile=pseudo-gui --loop-file "${it}" &
 		echo "$!" > "${HOME}/.ni/LAST_VIEWER_PID"
 	else
