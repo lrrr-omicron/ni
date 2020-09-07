@@ -1,6 +1,23 @@
 #!/usr/bin/env bash
 #############################
 
+cleanup_pidfiles () {
+	>&2 echo
+	_info "Cleaning up pidfiles"
+        # don't use these again.
+        rm -f "${HOME}/.ni/LAST_VIEWER_PID"
+        rm -f "${HOME}/.ni/LAST_NI"
+}
+
+do_cancelled () {
+	>&2 echo
+	_die "Cancelled"
+}
+
+trap do_cancelled HUP INT;
+trap cleanup_pidfiles EXIT;
+
+
 # TODO: find out what types are actually supported by feh and mpv and add them
 FEH_LIMITED_SUPPORT_TYPES="otf|raw|svg|xcf"
 FEH_MANPAGE_LISTED_TYPES="bmp|(jfif|jpeg|jpg)|png|pnm|tiff"
