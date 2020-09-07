@@ -312,7 +312,7 @@ mv "Vintage Swimsuit.jpg" "/home/anon/sexyladies/All/ck-4161738110437836.jpg"
 ln -s "/home/anon/sexyladies/All/ck-4161738110437836.jpg" "./ck-4161738110437836.jpg"
 /home/anon/sexyladies/.meta/FILENAMES/Vintage Swimsuit.jpg did not exist, creating it
 Tagging ck-4161738110437836.jpg as bathingsuits/oldtimey
-Tagging ck-4161738110437836.jpg as funny
+Tagging ck-4161738110437836.jpg as silly
 Not removing actual file: /home/anon/sexyladies/All/ck-4161738110437836.jpg
 Removing symlink: ck-4161738110437836.jpg
 kill -INT 75531
