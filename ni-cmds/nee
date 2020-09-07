@@ -2,8 +2,12 @@
 #############################
 
 # TODO: find out what types are actually supported by feh and mpv and add them
-FEHTYPES='jpeg|jpg|jfif|png|gif|webp'
-MPVTYPES='webm'
+FEH_LIMITED_SUPPORT_TYPES="otf|raw|svg|xcf"
+FEH_MANPAGE_LISTED_TYPES="bmp|(jfif|jpeg|jpg)|png|pnm|tiff"
+FEHTYPES="${FEH_MANPAGE_LISTED_TYPES}|${FEH_LIMITED_SUPPORT_TYPES}"
+MVP_VIDEO_TYPES='avi|mov|mp4|ogg|wmv|webm|gif'
+MVP_AUDIO_TYPES='mp3|ogg|wav'
+MPVTYPES="${MPV_VIDEO_TYPES}|${MPV_AUDIO_TYPES}"
 FOUNDFILE=''
 TAGS=()
 # list ignoring the temp files feh creates in the current directory
