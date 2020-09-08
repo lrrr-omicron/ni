@@ -38,12 +38,12 @@ fi
 
 if [[ "$1" == "" ]] ; then
 	_warn "What file did you want to see the tags for?"
-	_die "USAGE: tags file"
+	_die "USAGE: ni-cmd inf file"
 fi
 LOOKFOR=$(basename "$1")
 if [[ "$2" != "" ]] ; then
 	_warn "Extra argument $2"
-	_die "USAGE: tags file"
+	_die "USAGE: ni-cmd inf file"
 fi
 
 echo "UNIQUE_FILENAME: $LOOKFOR"

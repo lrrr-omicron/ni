@@ -6,7 +6,7 @@
 # 
 # rename-raw allows you to change it
 #
-# USAGE: rename-raw the-filename new-meaningful-filename
+# USAGE: ni-cmd rename-raw the-filename new-meaningful-filename
 #
 # the-filename will be something like ck-12345.jpg
 # new-meaningful-filename will be something like my-titty-picture.jpg
