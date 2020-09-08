@@ -210,7 +210,7 @@ $ ni-cmd reingest  # this will eliminate duplicates,
                    # store the original filename under pic-collection/.meta
                    # leave you with a symlink to pic-collection/All/ck-checksum.ext for each file in incoming-downloads
 $ ni
-``
+```
 
 ni will get the next filename or ck-checksum.ext symlink from the listing of the current directory, open the appropriate viewer, run the ni-cmd tag -d command for you prompting you for the tags for the pic/vid/etc you are viewing and then kill the viewer for you.
   
