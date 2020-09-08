@@ -277,7 +277,7 @@ Here we see the webm has two tags: bathingsuits/oldtimey and celebrities/oliveoy
 
 Suppose we download a black-and-white photo from a bygone year:
 
-'''
+```
 ~/sexyladies
 $ # first let's make an incoming folder and have firefox save the photo there
 $ mkdir incoming
