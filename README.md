@@ -84,7 +84,7 @@ you to prefix them with ni-cmd Eg:
 ```
 $ source use notporn # only needs to be done once until you
                      # close your terminal or switch to another context
-$ ni-cmd reingest # This will totally fuck up your notporn collection!
+$ ni-cmd reingest # This will totally f*ck up your notporn collection!
 ck-293042304320932.jpg
 ```
 
@@ -136,7 +136,7 @@ Lots of times downloaded files are named things like 1.jpg.  That name shouldn't
 
 ### ni-cmd commands
 
-Here are some commands.  These used to be standalone.  Now they must be called prefixed with ni-cmd.  TODO: update docs/usage statements to reflect that 
+Here are some commands.  These used to be standalone.  Now they must be called prefixed with ni-cmd.  
 
 ```
 $ ls ~/opt/ni/ni-cmds
@@ -144,7 +144,11 @@ delete-all  inf     nee       rename      tag
 get-name    ingest  reingest  rename-raw  untag
 ```
 
-Most of these you won't use.  nee is private ni-cmd version, use ~/opt/ni/ni instead.  Put ~/opt/ni in your path not ~/opt/ni/ni-cmds so they don't pollute your path.  Also these rely on ni-cmd sourcing them for access to environment, so they shouldn't be called without ni-cmd anymore.  If you want tag in your environment without having to type ni-cmd, make an alias to ni-cmd tag.
+Most of these you won't use.  nee is private - don't use - use ~/opt/ni/ni instead.  Put ~/opt/ni in your path not ~/opt/ni/ni-cmds so they don't pollute your path.  These rely on ni-cmd sourcing them for access to environment, so they shouldn't be called without ni-cmd anymore.  
+
+If you want tag in your environment without having to type ni-cmd, make an alias to 'ni-cmd tag'.
+
+Here is an example of the ni-cmd inf :
 
 ```
 $ ni-cmd inf ck-293042304320932.jpg
