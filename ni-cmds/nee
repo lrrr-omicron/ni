@@ -31,24 +31,27 @@ TAGS=()
 # list ignoring the temp files feh creates in the current directory
 while read it
 do
-	FOUNDFILE="$it"	
-	_info "FOUNDFILE=${FOUNDFILE}"
-	if egrep -iq '[.]('"${FEHTYPES}"i')$' <<< "${it}" ; then
+	
+	FOUNDFILE=$(basename "$it")
+	if [[ -z "$FOUNDFILE" ]] ; then
+		continue
+	fi
+	if egrep -iq '[.]('"${FEHTYPES}"i')$' <<< "${FOUNDFILE}" ; then
 		feh --scale-down --draw-exif "$it" &
 		echo "$!" > "${HOME}/.ni/LAST_VIEWER_PID"
-	elif egrep -iq '[.]('"${MPVTYPES}"')$' <<< "${it}" ; then
-		mpv --profile=pseudo-gui --loop-file "${it}" &
+	elif egrep -iq '[.]('"${MPVTYPES}"')$' <<< "${FOUNDFILE}" ; then
+		mpv --profile=pseudo-gui --loop-file "${FOUNDFILE}" &
 		echo "$!" > "${HOME}/.ni/LAST_VIEWER_PID"
 	else
 		rm -f "${HOME}/.ni/LAST_VIEWER_PID"
-		_die "No known opener for ${it}"
+		_die "No known opener for ${FOUNDFILE}"
 	fi
 
 	mkdir -p "${HOME}/.ni"
-	echo "${it}" > "${HOME}/.ni/LAST_NI"
-	printf "Enter tags for $it: "
+	echo "${FOUNDFILE}" > "${HOME}/.ni/LAST_NI"
+	printf "Enter tags for $FOUNDFILE: "
 	read -a TAGS < /dev/tty # read from tty even though we're redirected
-done <<< $(ls -1  | egrep '[.]('"${FEHTYPES}|${MPVTYPES}"')$' | egrep -v 'feh_[0-9]+_[0-9]+_' | tail -1) 
+done <<< $(find . -maxdepth 1 -not -type d -print  | egrep '[.]('"${FEHTYPES}|${MPVTYPES}"')$' | egrep -v 'feh_[0-9]+_[0-9]+_' | tail -1) 
 
 test -z "$FOUNDFILE" && _die "No eligable files found in current directory."
 >&2 echo exec ni-cmd tag -d "${FOUNDFILE}" "${TAGS[@]}"
