@@ -22,19 +22,21 @@ trap cleanup_pidfiles EXIT;
 FEH_LIMITED_SUPPORT_TYPES="otf|raw|svg|xcf"
 FEH_MANPAGE_LISTED_TYPES="bmp|(jfif|jpeg|jpg)|png|pnm|tiff"
 FEHTYPES="${FEH_MANPAGE_LISTED_TYPES}|${FEH_LIMITED_SUPPORT_TYPES}"
-MVP_VIDEO_TYPES='avi|mov|mp4|ogg|wmv|webm|gif'
-MVP_AUDIO_TYPES='mp3|ogg|wav|webm'
+MPV_VIDEO_TYPES='avi|mov|mp4|ogg|wmv|webm|gif'
+MPV_AUDIO_TYPES='mp3|ogg|wav|webm'
 MPVTYPES="${MPV_VIDEO_TYPES}|${MPV_AUDIO_TYPES}"
 FOUNDFILE=''
 TAGS=()
+
 # list ignoring the temp files feh creates in the current directory
 while read it
 do
 	FOUNDFILE="$it"	
+	_info "FOUNDFILE=${FOUNDFILE}"
 	if egrep -iq '[.]('"${FEHTYPES}"i')$' <<< "${it}" ; then
 		feh --scale-down --draw-exif "$it" &
 		echo "$!" > "${HOME}/.ni/LAST_VIEWER_PID"
-	elif egrep -iq '[.]('"${MPVTTPES}"')$' <<< "${it}" ; then
+	elif egrep -iq '[.]('"${MPVTYPES}"')$' <<< "${it}" ; then
 		mpv --profile=pseudo-gui --loop-file "${it}" &
 		echo "$!" > "${HOME}/.ni/LAST_VIEWER_PID"
 	else
@@ -46,7 +48,7 @@ do
 	echo "${it}" > "${HOME}/.ni/LAST_NI"
 	printf "Enter tags for $it: "
 	read -a TAGS < /dev/tty # read from tty even though we're redirected
-done <<< $(ls  | egrep '[.]('"${FEHTYPES}|${MPVTYPES}"')$' | egrep -v 'feh_[0-9]+_[0-9]+_' | tail -1) 
+done <<< $(ls -1  | egrep '[.]('"${FEHTYPES}|${MPVTYPES}"')$' | egrep -v 'feh_[0-9]+_[0-9]+_' | tail -1) 
 
 test -z "$FOUNDFILE" && _die "No eligable files found in current directory."
 >&2 echo exec ni-cmd tag -d "${FOUNDFILE}" "${TAGS[@]}"
