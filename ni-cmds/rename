@@ -6,7 +6,7 @@
 # as quick and safe as possible.  However if the bumpers get in the way
 # set-filename called directly will still do what you want.
 # 
-# USAGE: rename the-filename new-meaningful-filename
+# USAGE: ni-cmd rename the-filename new-meaningful-filename
 #
 # the-filename will be something like ck-12345.jpg
 # new-meaningful-filename will be something like my-titty-picture
@@ -22,9 +22,13 @@
 
 SCRIPT="${0}"
 SCRIPT_NAME=$(basename "${SCRIPT}")
+if [[ "$SCRIPT_NAME" != 'ni-cmd' ]] ; then
+	_die "Usage: ni-cmd $SCRIPT_NAME ck-blahblah.xxx newfilename"
+fi
 FILENAME="${1}"
-NEW_FILENAME="${2}"
-REST="${3}"
+shift
+NEW_FILENAME="$@"
+
 
 if [[ "${FILENAME}" = "" ]] ; then
 	_warn "Usage: ni-cmd $SCRIPT_NAME ck-blahblah.xxx newfilename"
@@ -81,4 +85,5 @@ fi
 
 NEW_FILENAME_WITH_EXT="${NEW_FILENAME}.${EXT}"
 
-np-cmd rename-raw "$FILENAME" "$NEW_FILENAME_WITH_EXT"
+_info "ni-cmd rename-raw $FILENAME $NEW_FILENAME_WITH_EXT"
+ni-cmd rename-raw "$FILENAME" "$NEW_FILENAME_WITH_EXT"

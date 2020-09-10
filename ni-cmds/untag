@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec tag -r "$@"
+exec ni-cmd tag -r "$@"

@@ -17,8 +17,12 @@
 # many files named 1.jpg.  They may be different pictures.  Links to all the 
 # files named 1.jpg will be stored in the 1.jpg folder in .meta/FILENAMES
 #
-# USAGE ingest file
+# USAGE ni-cmd ingest file
 
+
+if [[ $# == "0" ]] ; then 
+	_die "USAGE ni-cmd ingest file"
+fi
 
 if [[ "${NI_CONTEXT_DIR}" == "" ]] ; then
 	_die "NI_CONTEXT_DIR undefined!!! You must use a context using the use command to define it" 

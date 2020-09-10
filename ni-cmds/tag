@@ -7,7 +7,6 @@
 
 if [[ -f "${HOME}/.ni/LAST_NI" ]] ; then
 	THE_FILE=`cat "${HOME}/.ni/LAST_NI"`
-	_info "THE_FILE = ${THE_FILE}"
 	rm "${HOME}/.ni/LAST_NI"
 	ARGS=("$@")
 	>&2 echo ni-cmd tag "${ARGS[@]}" || exit $?
@@ -64,8 +63,6 @@ print_usage () {
 	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] tags and files <-- tries to guess"
 	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] files -t tags"
 	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] tags -f files"
-	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] -f files -t tags"
-	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] -t tags -f files"
 	echo
 	echo "OPTIONS:"
 	echo "	-r		Remove the tags from the files."

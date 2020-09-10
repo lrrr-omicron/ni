@@ -43,7 +43,7 @@ if ! [[ -z "${REST}" ]] ; then
 fi
 
 if [[ ! -e "${FILENAME}" ]] ; then
-	FBN=$(basename ${FILENAME})
+	FBN="$(basename ${FILENAME})"
 	ALL_FILENAME="${NI_CONTEXT_DIR}/All/${FBN}"
 	if [[ ! -e "${ALL_FILENAME}" ]] ; then
 		_die "${FILENAME} did not exist and neither did ${ALL_FILENAME}." 

@@ -57,27 +57,22 @@ fi
 SCRIPT="${0}"
 SCRIPT_NAME=$(basename "${SCRIPT}")
 FILENAME="${1}"
-NEW_FILENAME="${2}"
-REST="${3}"
+shift
+NEW_FILENAME="$@"
 
 
 
-if [[ ! -e "${FILENAME}" ]] ; then
-	_die "${FILENAME} did not exist." >&2
+THE_FILE="$(find "$NI_CONTEXT_DIR" -not -type d -print | head -1)"
+
+if [[ ! -e "${THE_FILE}" ]] ; then
+	_die "${FILENAME} ($THE_FILE) did not exist." >&2
 fi
 
-if [[ ! -f "${FILENAME}" ]] ; then
-	_die "${FILENAME} was not a file." 
-fi
 
 if [[ "${REST}" != "" ]] ; then
 	_die "USAGE: ${SCRIPT_NAME} file new-filename"
 fi
 
-
-if [[ "$FILENAME" != $(basename "$FILENAME") ]] ; then
-	_die "Don't enter path of filename, just the basename"
-fi
 
 if [[ "$NEW_FILENAME" != $(basename "$NEW_FILENAME") ]] ; then
 	_die echo "Don't enter path of new filename, just the basename"
@@ -86,17 +81,18 @@ fi
 FILENAMES_DIR="${META_DIR}/FILENAMES"
 FILENAME_DIR="${FILENAMES_DIR}/${NEW_FILENAME}"
 
-FILENAME=$(ingest "${FILENAME}")
-FILEBASENAME=$(basename "$FILENAME")
+# in case it wasn't ingested
+test -f "${FILENAME}" && FILENAME="$(ni-cmd ingest "${FILENAME}")"
+FILEBASENAME="$(basename "$FILENAME")"
 
 # delete all other names it may have had.
-for NAME in $(find "${FILENAMES_DIR}" -name "${FILEBASENAME}" -print) 
+find "${FILENAMES_DIR}" -name "${FILEBASENAME}" -print | while read NAME
 do
-	PARENT_DIR=$(dirname "${RESULT}")
+	PARENT_DIR="$(dirname "${NAME}")"
 	rm -f "$NAME"
 done
 # prune empty ones.
-for EMPTY in $(find "${FILENAMES_DIR}" -type d -empty -print)
+find "${FILENAMES_DIR}" -type d -empty -print | while read EMPTY
 do
 	rmdir "$EMPTY"
 done
@@ -109,11 +105,10 @@ if [[ ! -d "${FILENAME_DIR}" ]] ; then
         fi
 fi
 
-BASENAME=$(basename "${FILENAME}")
-ALL_FILENAME="${ALL_DIR}/${BASENAME}"
+ALL_FILENAME="${ALL_DIR}/${FILEBASENAME}"
 
-if [[ ! -e "${FILENAME_DIR}/${BASENAME}" ]] ; then 
+if [[ ! -e "${FILENAME_DIR}/${FILEBASENAME}" ]] ; then 
 	# save a link to the file in a directory named after the original filename.
-	ln -s "${ALL_FILENAME}" "${FILENAME_DIR}/${BASENAME}"
+	ln -s "${ALL_FILENAME}" "${FILENAME_DIR}/${FILEBASENAME}"
 fi
-_info "Filename ${NEW_FILENAME} stored for ${BASENAME}."
+_info "Filename ${NEW_FILENAME} stored for ${FILEBASENAME}."
