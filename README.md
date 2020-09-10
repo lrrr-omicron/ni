@@ -351,3 +351,113 @@ silly
 You don't have to type the whole tag name when tagging.  ni finds the best match and  just uses it.  It only fails complaining about missing tag if you've typed a tagname that can't match an existing tag folder.
 
 Because it assumes you mean an existing tag though, you have to create new tags manually by creating the folder in your context,
+
+# ni-cmd command reference:
+
+## ni-cmd tag
+
+```
+$ ni-cmd tag
+USAGE: 
+	ni-cmd tag [-r|-d] tags and files <-- tries to guess
+	ni-cmd tag [-r|-d] files -t tags
+	ni-cmd tag [-r|-d] tags -f files
+
+OPTIONS:
+	-r		Remove the tags from the files.
+	-d		Delete the file from the current tag/directory 
+			when done.  Useful if you are saving your files 
+			to an Incoming directory and tagging them later,
+			this would tag your files then delete them from
+			the Incoming tag/folder.
+	-t tags		Specifies a list of tags
+	-f files	Specifies a list of files to tag..
+```
+
+
+## ni-cmd delete-all
+
+```
+$ ni-cmd delete-all
+USAGE: ni-cmd delete-all [files to purge from context]
+
+# for example:
+$ ni-cmd delete-all ck-xxxxxxxx.jpg ck-yyyyyyyyy.png
+
+# don't delete files that have not been ingested into context and given a ck-zzzzzzzz.xyz filename.  Just use rm instead.  delete-all purges the file from the context removing all copies.
+```
+
+## ni-cmd get-name
+```
+$ ni-cmd get-name
+Usage: ni-cmd get-name file
+
+# for example:
+$ ni-cmd get-name ck-xxxxxxxxxx.jpg
+# returns the actual filename it had when it was ingested ( or whatever you set it to using rename
+```
+
+## ni-cmd ingest
+```
+$ ni-cmd ingest
+Usage: ni-cmd ingest file
+
+# ingest one file into context.
+# there is no reason to use this.  tag and other commands do this automatically.   Also ni-cmd reingest does it for all files in the 
+# context.
+
+# it's here for use by other ni-cmds.
+
+```
+
+## ni-cmd reingest
+
+This re-ingests all files into the context. 
+
+If that were all, there would be no reason for you to issue this command.
+
+But it also looks for files named <something>.md  and uses pandoc ot create <something>.html files.
+ 
+So if you use this and want to refresh your html from your md, then issue this command.
+
+## ni-cmd untag 
+
+This is equivalent to ni-cmd tag -r
+
+## ni-cmd nee 
+PRIVATE, DON'T USE.  use ni instead
+
+## ni-cmd rename
+Each file can have one and only one name.  This allows you to set that name manually.
+
+```
+$ ni-cmd rename
+Usage: ni-cmd ni-cmd ck-blahblah.xxx newfilename
+
+# will infer the extension =xxx from first arg. If you reverse them it will infer from the second arg.
+# however you need quotes if you have spaces in the filename in that case.
+
+$ ni-cmd rename ck-3343284329324392.jpg my dog spot
+# this is ok.  renmes to "my dog spog.jpg"
+
+$ ni-cmd rename 'my dog spot' ck-37432878324332.jpg
+# ok, I can figure out the one with the .jpg is the file you mean
+
+$ ni-cmd rename ck-3343284329324392.jpg whatever.jpg
+# ok, same extension
+
+$ ni-cmd rename ck-3343284329324392.jpg whatever.png
+# nope.  won't let you change extension  Use rename-raw instead if you mean to do that.
+```
+
+## ni-cmd rename-raw
+
+This is the same as rename but doesn't check if it's sane to do what you ask.
+
+## ni-cmd inf
+``` 
+$ ni-cmd inf
+USAGE: ni-cmd inf file.
+$ ni-cmd inf ck-2390342304324.jpg
+# prints out all the tags the file has, and what it's original filename ( or filename you set ) was.
+
