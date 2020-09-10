@@ -14,7 +14,7 @@
 # the meaningful name is only viewable with get-name. 
 # 
 # if the new-meaningful-filename contains dots this script exits doing 
-# nothing.   Call set-filename directly to change extension.  sf creates the
+# nothing.   Call rename-raw directly to change extension.  rename creates the
 # new filename using the extension from the-filename. You can't change 
 # extensions with rename.  This buys you not having to look at or type them and
 # is the main purpose of rename over rename-raw.  Also we enforce some file naming standards.
