@@ -31,13 +31,13 @@ NEW_FILENAME="$@"
 
 
 if [[ "${FILENAME}" = "" ]] ; then
-	_warn "Usage: ni-cmd $SCRIPT_NAME ck-blahblah.xxx newfilename"
-	_die echo "It's ok to reverse the arguments as long as the newfilename lacks an extension"
+	_warn "Usage: ni-cmd rename ck-blahblah.xxx newfilename"
+	_die "It's ok to reverse the arguments as long as the newfilename lacks an extension and there are only two args"
 fi
 
 if [[ "${NEW_FILENAME}" = "" ]] ; then
-	_warn "Usage: $SCRIPT_NAME ck-blahblah.xxx newfilename"
-	_die "It's ok to reverse the arguments as long as the newfilename lacks an extension"
+	_warn "Usage: ni-cmd rename ck-blahblah.xxx newfilename"
+	_die "It's ok to reverse the arguments as long as the newfilename lacks an extension and there are only two args"
 fi
 
 EXT=""	
