@@ -73,13 +73,11 @@ $ source ni-use .porn
 
 This would cd you into your hidden .pron directory.
 
+### ~/opt/ni and ~/opt/ni/ni-cmds
 
-The stuff you see in the ~/opt/ni/ni-cmd is commands that I used to have in my path polluting my namespace of commands. 
-junky scripts ( and still are though I've been cleaning them up a bit for this ).  Now these shouldn't be called except via
-ni-cmd.  You can run the stuff in ~/opt/ni directly ( except ni-use which needs to be sourced - see above )
+You can run the stuff in ~/opt/ni directly ( except ni-use which needs to be sourced - see above )  the stuff in ~/opt/ni/ni-cmds must be prefixed with ni-cmd to run them.  This was done so lots of ni-related-utility commands don't pollute your path.  
 
-The stuff in ni-cmd still has usage statements unedited from when they used to be called directly but now they need 
-you to prefix them with ni-cmd Eg: 
+An example of running a ni-cmd to ingest all uningested files in the notporn context and refresh all the html files from the .md files therein: 
 
 ```
 $ source use notporn # only needs to be done once until you
