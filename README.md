@@ -305,11 +305,11 @@ $ mkdir ~/sexyladies/silly
 
 ~/sexyladies/incoming
 $ ni
-Enter tags for Vintage Swimsuit.jpg: oldt funny
-exec ni-cmd tag -d Vintage Swimsuit.jpg oldt funny
+Enter tags for Vintage Swimsuit.jpg: oldt silly
+exec ni-cmd tag -d Vintage Swimsuit.jpg oldt silly
 THE_FILE = Vintage Swimsuit.jpg
-ni-cmd tag -d Vintage Swimsuit.jpg oldt funny
-/home/anon/sexyladies/funny
+ni-cmd tag -d Vintage Swimsuit.jpg oldt silly
+/home/anon/sexyladies/silly
 mv "Vintage Swimsuit.jpg" "/home/anon/sexyladies/All/ck-4161738110437836.jpg"
 ln -s "/home/anon/sexyladies/All/ck-4161738110437836.jpg" "./ck-4161738110437836.jpg"
 /home/anon/sexyladies/.meta/FILENAMES/Vintage Swimsuit.jpg did not exist, creating it
