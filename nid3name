@@ -69,7 +69,7 @@ TITLE="$(nid3q title "${FILE}")"
 if [[ "${TITLE}" = "" ]] ; then
 	TITLE="Unknown Title"
 fi
-YEAR="$(nid3q year "${FILE}")"
+YEAR="$(nid3q TDOR "${FILE}")"
 COMMENT="$(nid3q comment "${FILE}")"
 ALBUM="$(nid3q album "${FILE}")"
 if ! [[ "${ALBUM}" = "" ]] ; then
