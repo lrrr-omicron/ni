@@ -74,8 +74,8 @@ if [[ "${REST}" != "" ]] ; then
 fi
 
 
-if [[ "$NEW_FILENAME" != $(basename "$NEW_FILENAME") ]] ; then
-	_die echo "Don't enter path of new filename, just the basename"
+if [[ "$NEW_FILENAME" != "$(basename "$NEW_FILENAME")" ]] ; then
+	_die echo "Don't enter path of new filename, just the basename : $NEW_FILENAME"
 fi
 
 FILENAMES_DIR="${META_DIR}/FILENAMES"
