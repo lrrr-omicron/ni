@@ -42,7 +42,7 @@ $ sudo apt-get install pandoc
 Installed.
 
 Also included are some experimental wrappers around eyeD3 which aren't really part of ni, but are needed to conveniently
-tag files in a ni repository since eyeD3 doesn't follow symlinks.  You're basically using eyeD3 and ffprobe to set/query
+mp3 tag files in a ni repository since eyeD3 doesn't follow symlinks.  You're basically using eyeD3 and ffprobe to set/query
 mp3 tags.
 
 mp3 tags have nothing to do with ni-tags.  If you want to use them, do this:
