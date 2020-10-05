@@ -55,7 +55,7 @@
 
 FILE="$1"
 
-if ! command -v  nid3q &> dev/null ; then
+if ! command -v  nid3q &> /dev/null ; then
         >&2 echo "nid3q command not found in path - how could this be?"
         exit 1
 fi
