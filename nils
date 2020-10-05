@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+ls | while read it 
+do
+	echo "${it} - `ni-cmd get-name "${it}"`"
+done
