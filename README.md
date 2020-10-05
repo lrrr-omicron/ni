@@ -144,6 +144,12 @@ This is because of three things:
 
 Lots of times downloaded files are named things like 1.jpg.  That name shouldn't take precedence over a manually set name.  Also this data is pretty much junk.  It's a starting point if there's nothing else to stick in there for name, but not much good otherwise.  The advantages of storing it and allowing files to have more than one name seem to be less than the advantages of having one name per file, as that encourages manually setting descriptive names.    However filenames are functionally just a tag, though we ignore them during tagging so you can intelligently structure your tags to avoid disambiguation prompts, so they are not quite the same as tags.  Think of them as tags you can only see with ni-cmd get-name with the restriction that each file can only have one, though one name might refer to many different files. (eg: 1.jpg probably refers to 100 files )  
 
+### ninms
+
+Mmemonic: ni names
+
+This is a quick and dirty ls substitute that only works on the current working directory and no other for now.  It lists the stored names of the files, falling back to the ck-xxxx.yyy name if none exists.  If you use ninms --full you get ck-xxx.yyy - storedfilenameifany format
+   
 
 ### ni-cmd commands
 
@@ -514,7 +520,7 @@ track: 		genre: Porn Groove (id 109)
 $ nid3name ck-764897397815587.mp3
 She-Ra - Opening Theme.mp3
 
-# Or if you want the year
+# Or if you want the year ( note that now --release-date is preferred but --orig-release-date works too if --release-date is not specified.
 
 $ nid3 --orig-release-date 1985 ck-764897397815587.mp3
 ...-5831-4039-8e06-a74e217c58ec/tusic/All/ck-961897397815597.mp3  [ 796.48 KB ]
@@ -534,3 +540,12 @@ $ nid3name ck-764897397815587.mp3
 She-Ra - Opening Theme[1985].mp3
 
 ```
+
+
+## nid3rename
+
+For use on mp3s only.  Query mp3 tags and store a filename according to the format returned by the nid3name command.
+
+This is a commonly needed operation if you're using mp3 tags.
+
+eyeD3 includes the ability to rename according to tags so I am providing something semi-similar here but for stored filenames rather than the ck-xxxx.yyy which won't be changed.
