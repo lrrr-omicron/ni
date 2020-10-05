@@ -22,11 +22,15 @@ if ! command -v  eyeD3 &> /dev/null ; then
 	exit 1
 fi
 
-
 # it's the last arg
 MP3_FILE="${!#}"
 
-
+if (($# == 1)) ; then
+	if echo "${MP3_FILE}" | egrep -q '^-.*$' ; then
+		>&2 echo "nid3 Parsing only arg as switch. use eyeD3 directly if you don't want this"
+		exec eyeD3 "$@"
+	fi
+fi
 FULL_PATH_TO_MP3FILE="$(realpath "${MP3_FILE}")"
 
 # Remove the last argument ( we're gonna pass the realpath ) 
