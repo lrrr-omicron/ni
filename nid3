@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
-
+# This is a workaround to get past the fact that eyeD3 won't follow symlinks
+#
+# see eyeD3 manpage for usage
+#
+#
+# You can convert other formats to mp3 using ffmpeg
+#
+# This is just for mp3 files.  
+# I am not an expert on tagging music files, but I'm writing this as I am 
+# going through my mp3 collection.  Maybe mp3 isn't the best format etc.
+# I dunno.  Maybe there is a way to do this better and be flexible to 
+# to different formats.
+# 
+# One thing I've discovered is that if you do eyeD3 --plugin=genres you get a 
+# list of 'standard genres'  perhaps having a 'genres' tag directory with these
+# inside would let them also be tags.  Maybe you could have something to set the# genre and simultaneously add it as a tag.  
 
 if ! command -v  eyeD3 &> dev/null ; then
 	>&2 echo "eyeD3 command not found in path.  Install it first.  For ubuntu that's:"
@@ -7,7 +22,6 @@ if ! command -v  eyeD3 &> dev/null ; then
 	exit 1
 fi
 
-# This is a workaround to get past the fact that eyeD3 won't follow symlinks
 
 # it's the last arg
 MP3_FILE="${!#}"

@@ -1,4 +1,57 @@
 #!/usr/bin/env bash
+#
+# Generate a standard filename from mp3 tags. 
+# 
+# Usage: nid3name filename.mp3
+#
+# Currently this name is in the format: Artist - Title of Song[year Album-Track Comment].mp3
+# the [] and the stuff inside is ommitted if it is not set. 
+# So if you don't set any of it you get Artist - Title of Song.mp3
+# or if you only do eg
+#
+# 	$ nid3 --artist 'Amanda Lear' --title 'Follow Me' --orig-release-date 1978 filename.mp3
+# 
+# then
+#
+#	$ nid3name filename.mp3 
+#       Amanda Lear - Follow Me[1978].mp3
+#
+# to set the filename in ni you'd do
+#
+#	$ ni-cmd rename filename.mp3 "$(nid3name filename.mp3)"
+#
+# then 
+# 	$ ni-cmd get-name filename.mp3
+# prints Amanda Lear - Follow Me[1978].mp3 as the stored filename.
+#
+# to do all the mp3s in the current directory do something like:
+#
+# 	$ ls | while read it
+#	do
+#	 	name="$(nid3name "$it")"
+#	 	echo $it - `ni-cmd get-name "$it"` "->" "$name"
+#		ni-cmd rename "$it" "$name"
+#	done 
+#
+# I may include this as a utility later.  
+# 
+# These mp3 tagging utils are in a state of flux.  Also they mainly amount to a # wrapper around eyeD3 and ffprobe.  They aren't really part of ni so they 
+# aren't included as ni-cmds.  They are tied to mp3 format and they legislate
+# a standard filename format that you might not like. So maybe you write 
+# your own with your own format, along with blackjack and hookers.
+# 
+# That being said I won't know what they really ought to look like until I
+# tag my mp3 collection for a while. 
+#  
+# some useful eyeD3 ( you can call wrapped as nid3 ) tricks I've been using are:
+#
+#	$ nid3 --remove-all filename.mp3  # removes all mp3 tags
+#	$ nid3 filename.mp3 # prints info
+# 	$ nid3 --orig-release-date YYYY filename.mp3 # set year Don't know what formats it accepts I only care about year and it's queryable with year after doing this so cool man.
+#	$ nid3 --artist 'Artist name' filename.mp3 # set artist
+# 	$ nid3 --title 'Title of song' filename.mp3 # set title
+# 	$ nid3 --genre 'Standard Genre Name' # There is a list of standardgenres
+# 	$ nid3 --plugin=genres # this lists the standard genres
 
 FILE="$1"
 
