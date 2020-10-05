@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+FILE="$1"
+
+if ! command -v  nid3q &> dev/null ; then
+        >&2 echo "nid3q command not found in path - how could this be?"
+        exit 1
+fi
+
+
+ARTIST="$(nid3q artist "${FILE}")"
+if [[ "${ARTIST}" = "" ]] ; then
+	ARTIST="Unknown Artist"
+fi
+TITLE="$(nid3q title "${FILE}")"
+if [[ "${TITLE}" = "" ]] ; then
+	TITLE="Unknown Title"
+fi
+YEAR="$(nid3q year "${FILE}")"
+COMMENT="$(nid3q comment "${FILE}")"
+ALBUM="$(nid3q album "${FILE}")"
+if ! [[ "${ALBUM}" = "" ]] ; then
+	ALBUM_TRACK="${ALBUM}" 
+	TRACK="$(nid3q track "${FILE}")"
+	if ! [[ "${TRACK}" = "" ]] ; then
+		ALBUM_TRACK="${ALBUM_TRACK}-${TRACK}"
+	fi
+fi
+
+
+#echo "ARTIST:$ARTIST"
+#echo "TITLE:$TITLE"
+#echo "YEAR:$YEAR"
+#echo "COMMENT:$COMMENT"
+#echo "ALBUM:$ALBUM"
+
+
+ADDITIONAL_INFO="${YEAR}"
+
+if ! [[ "${ALBUM_TRACK}" = "" ]] ; then 
+	if ! [[ "${ADDITIONAL_INFO}" = "" ]] ; then
+		ADDITIONAL_INFO="${ADDITIONAL_INFO} "
+	fi
+ 	ADDITIONAL_INFO="${ADDITIONAL_INFO}${ALBUM_TRACK}"
+fi
+if ! [[ "${COMMENT}" = "" ]] ; then 
+	if ! [[ "${ADDITIONAL_INFO}" = "" ]] ; then 
+		ADDITIONAL_INFO="${ADDITIONAL_INFO} "
+	fi
+ 	ADDITIONAL_INFO="${ADDITIONAL_INFO}${COMMENT}"
+fi
+
+ADDITIONAL_INFO="$(echo "${ADDITIONAL_INFO}" | sed -r 's/^[ 	]*$//g' | sed -r 's/[ 	][	 ]*/ /g' )"
+
+if ! [[ "${ADDITIONAL_INFO}" = "" ]] ; then
+	ADDITIONAL_INFO="[${ADDITIONAL_INFO}]"
+else
+	ADDITIONAL_INFO=""
+fi
+
+RESULT="${ARTIST} - ${TITLE}${ADDITIONAL_INFO}"
+echo "${RESULT}.mp3"

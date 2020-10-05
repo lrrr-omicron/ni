@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+
+if ! command -v  eyeD3 &> dev/null ; then
+	>&2 echo "eyeD3 command not found in path.  Install it first.  For ubuntu that's:"
+	>&2 echo "	$ sudo apt-get install eyed3"
+	exit 1
+fi
+
+# This is a workaround to get past the fact that eyeD3 won't follow symlinks
+
+# it's the last arg
+MP3_FILE="${!#}"
+
+
+FULL_PATH_TO_MP3FILE="$(realpath "${MP3_FILE}")"
+
+# Remove the last argument ( we're gonna pass the realpath ) 
+set -- "${@:1:$(($#-1))}"
+
+exec eyeD3 "$@" "${FULL_PATH_TO_MP3FILE}"

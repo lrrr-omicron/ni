@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+WHAT="$1"
+FILE="$2"
+
+if ! command -v  ffprobe &> dev/null ; then
+        >&2 echo "ffprobe command not found in path.  Install it first.  For ubuntu that's probably:"
+        >&2 echo "      $ sudo apt-get install ffmpeg"
+        exit 1
+fi
+
+RESULT="$(ffprobe "${FILE}" 2>&1 | egrep -i "^[ 	]*${WHAT}[ 	]*[:]" | sed -r 's/^[^:]*[:][ 	]*//g')"
+echo "${RESULT}"  
