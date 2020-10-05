@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+
+find . -maxdepth 1 -type f -o -type l -print  | while read it
+do
+	fn="$(basename "${it}")"
+	echo "${fn} - $(ni-cmd get-name "${it}")"
+done
