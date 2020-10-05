@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+SCRN="$(basename "$0")"
+FILE="$1" 
+REST="$2"
+
+if ! [[ "$REST" = "" ]] ; then
+	>&2 echo "Usage: $SCRN filename.mp3" 
+	>&2 echo "uses the suggested mp3 tag based filename for the stored filename in ni"
+	exit 1
+fi
+
+exec ni-cmd rename "${FILE}" "$(nid3name "${FILE}")"

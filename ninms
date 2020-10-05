@@ -1,8 +1,38 @@
 #!/usr/bin/env bash
 
+# ninms (NI NaMeS)
+# This is not a substitute for ls.  Use that and script with it.  This is just
+# a quick and dirty 'ls' for the current directory that lists the ck-xxx.yza filename
+# along with the stored filename.
+
+SCRP="$(basename "$0")"
+FULL="$1"
+if ! [[ "${FULL}" = "" ]] ; then
+	if ! [[ "${FULL}" = "--full" ]] ; then
+		if ! [[ "${FULL}" = '-f' ]] ; then
+			>&2 echo "Bad option ${FULL}"
+			>&2 echo "Usage ${SCRP} [options]"
+			>&2 echo " -f --full include both filename and stored name even if stored name is blank"
+			exit 1
+		fi
+	fi
+fi
 
 find . -maxdepth 1 -type f -o -type l -print  | while read it
 do
 	fn="$(basename "${it}")"
-	echo "${fn} - $(ni-cmd get-name "${it}")"
+	sn="$(ni-cmd get-name "${it}")"
+	if ! [[ "${sn}" = "" ]] ; then 
+		if [[ "${FULL}" = "" ]] ; then
+			echo "${sn}"
+		else
+			echo "${fn} - ${sn}"
+		fi
+	else
+		if ! [[ "${FULL}" = "" ]] ; then
+			echo "${fn} -"
+		else
+			echo "${fn}"
+		fi
+	fi
 done
