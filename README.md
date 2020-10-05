@@ -36,10 +36,23 @@ You'll want to do:
 
 ```
 $ sudo apt-get install pandoc
+
  ```
  
 Installed.
 
+Also included are some experimental wrappers around eyeD3 which aren't really part of ni, but are needed to conveniently
+tag files in a ni repository since eyeD3 doesn't follow symlinks.  You're basically using eyeD3 and ffprobe to set/query
+mp3 tags.
+
+mp3 tags have nothing to do with ni-tags.  If you want to use them, do this:
+
+``` 
+$ sudo apt-get install eyed3
+$ sudo apt-get install ffmpeg
+```
+
+Then you can use the wrappers nid3 nid3q and nid3name ( described at the end ) 
 
 ### Getting started: 
 
@@ -458,4 +471,66 @@ $ ni-cmd inf
 USAGE: ni-cmd inf file.
 $ ni-cmd inf ck-2390342304324.jpg
 # prints out all the tags the file has, and what it's original filename ( or filename you set ) was.
+```
 
+# mp3 tagging / eyeD3 wrappers
+
+Because eyeD3 does not follow symlinks by default a few wrapper/util scripts have been included for those who want to use
+mp3 tags:
+
+
+## nid3 
+
+This is a wrapper around eyeD3 that dereferences that just calls eyeD3 after dereferencing the symlink ( which abound in ni ) see the docs for eyeD3 for further info
+
+## nid3q
+
+Usage:  nid3q field filename.mp3
+
+eg:  nid3q artist filename.mp3 would print 'Some band name'
+
+This uses ffprobe to query the mp3 tags. 
+
+## nid3name
+
+Usage nid3name filename.mp3
+
+prints a suggested filename from the queried mp3 tags 
+
+eg:
+```
+$ nid3 ck-764897397815587.mp3
+...-5831-4039-8e06-a74e217c58ec/tusic/All/ck-961897397815597.mp3  [ 796.48 KB ]
+--------------------------------------------------------------------------------
+Time: 01:13	MPEG1, Layer III	[ ~89 kb/s @ 44100 Hz - Stereo ]
+--------------------------------------------------------------------------------
+ID3 v2.4:
+title: Opening Theme
+artist: She-Ra
+album: 
+track: 		genre: Porn Groove (id 109)
+
+
+$ nid3name ck-764897397815587.mp3
+She-Ra - Opening Theme.mp3
+
+# Or if you want the year
+
+$ nid3 --orig-release-date 1985 ck-764897397815587.mp3
+...-5831-4039-8e06-a74e217c58ec/tusic/All/ck-961897397815597.mp3  [ 796.48 KB ]
+--------------------------------------------------------------------------------
+Setting original release date: 1985
+Time: 01:13	MPEG1, Layer III	[ ~89 kb/s @ 44100 Hz - Stereo ]
+--------------------------------------------------------------------------------
+ID3 v2.4:
+title: Opening Theme
+artist: She-Ra
+album: 
+original release date: 1985
+track: 		genre: Porn Groove (id 109)
+Writing ID3 version v2.4
+--------------------------------------------------------------------------------
+$ nid3name ck-764897397815587.mp3
+She-Ra - Opening Theme[1985].mp3
+
+```
