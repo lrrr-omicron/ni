@@ -73,13 +73,11 @@ $ source ni-use .porn
 
 This would cd you into your hidden .pron directory.
 
+### ~/opt/ni and ~/opt/ni/ni-cmds
 
-The stuff you see in the ~/opt/ni/ni-cmd is commands that I used to have in my path polluting my namespace of commands. 
-junky scripts ( and still are though I've been cleaning them up a bit for this ).  Now these shouldn't be called except via
-ni-cmd.  You can run the stuff in ~/opt/ni directly ( except ni-use which needs to be sourced - see above )
+You can run the stuff in ~/opt/ni directly ( except ni-use which needs to be sourced - see above )  the stuff in ~/opt/ni/ni-cmds must be prefixed with ni-cmd to run them.  This was done so lots of ni-related-utility commands don't pollute your path.  
 
-The stuff in ni-cmd still has usage statements unedited from when they used to be called directly but now they need 
-you to prefix them with ni-cmd Eg: 
+An example of running a ni-cmd to ingest all uningested files in the notporn context and refresh all the html files from the .md files therein: 
 
 ```
 $ source use notporn # only needs to be done once until you
@@ -307,11 +305,11 @@ $ mkdir ~/sexyladies/silly
 
 ~/sexyladies/incoming
 $ ni
-Enter tags for Vintage Swimsuit.jpg: oldt funny
-exec ni-cmd tag -d Vintage Swimsuit.jpg oldt funny
+Enter tags for Vintage Swimsuit.jpg: oldt silly
+exec ni-cmd tag -d Vintage Swimsuit.jpg oldt silly
 THE_FILE = Vintage Swimsuit.jpg
-ni-cmd tag -d Vintage Swimsuit.jpg oldt funny
-/home/anon/sexyladies/funny
+ni-cmd tag -d Vintage Swimsuit.jpg oldt silly
+/home/anon/sexyladies/silly
 mv "Vintage Swimsuit.jpg" "/home/anon/sexyladies/All/ck-4161738110437836.jpg"
 ln -s "/home/anon/sexyladies/All/ck-4161738110437836.jpg" "./ck-4161738110437836.jpg"
 /home/anon/sexyladies/.meta/FILENAMES/Vintage Swimsuit.jpg did not exist, creating it
