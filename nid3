@@ -16,7 +16,7 @@
 # list of 'standard genres'  perhaps having a 'genres' tag directory with these
 # inside would let them also be tags.  Maybe you could have something to set the# genre and simultaneously add it as a tag.  
 
-if ! command -v  eyeD3 &> dev/null ; then
+if ! command -v  eyeD3 &> /dev/null ; then
 	>&2 echo "eyeD3 command not found in path.  Install it first.  For ubuntu that's:"
 	>&2 echo "	$ sudo apt-get install eyed3"
 	exit 1
