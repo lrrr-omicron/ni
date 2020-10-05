@@ -8,7 +8,11 @@ put the ni folder somewhere and put that folder into your path
 
 ``` 
 $ ls ~/opt/ni
-common  ni  ni-cmd  ni-cmds  ni-use`
+common   ni-cmds   nid3rename     ninms          ni-tag
+LICENSE  nid3      ni-delete-all  ni-reingest    ni-untag
+ni       nid3name  ni-get-name    ni-rename      ni-use
+ni-cmd   nid3q     ni-ingest      ni-rename-raw  README.md
+
 $ PATH="${PATH}:~/opt/ni"
 ```
 
@@ -29,7 +33,7 @@ $ sudo apt-get install mpv
 I think that's all you NEED, but if you want to create markdown description files to be converted to html when you type 
 
 ```
-$ ni-cmd reingest 
+$ ni-reingest 
 ```
 
 You'll want to do:
@@ -88,14 +92,20 @@ This would cd you into your hidden .pron directory.
 
 ### ~/opt/ni and ~/opt/ni/ni-cmds
 
-You can run the stuff in ~/opt/ni directly ( except ni-use which needs to be sourced - see above )  the stuff in ~/opt/ni/ni-cmds must be prefixed with ni-cmd to run them.  This was done so lots of ni-related-utility commands don't pollute your path.  
+Ignore the stuff in ni-cmds.  You don't need it.
+
+wrappers now exist in ~/opt/ni for each ni-cmd.
+
+If you used to type ni-cmd whatever now just type ni-whatever 
+
+You can run the stuff in ~/opt/ni directly ( except ni-use which needs to be sourced - see above ) 
 
 An example of running a ni-cmd to ingest all uningested files in the notporn context and refresh all the html files from the .md files therein: 
 
 ```
 $ source use notporn # only needs to be done once until you
                      # close your terminal or switch to another context
-$ ni-cmd reingest # This will totally f*ck up your notporn collection!
+$ ni-reingest # This will totally f*ck up your notporn collection!
 ck-293042304320932.jpg
 ```
 
@@ -118,7 +128,7 @@ It has one symlink named  ck-293042304320932.jpg pointing back to notporn/All/ck
 You can retrieve the original filename by doing 
  
 ```
-$ ni-cmd get-name ck-293042304320932.jpg
+$ ni-get-name ck-293042304320932.jpg
 3374855 - pic-of-my-dog.jpg
 ```
 
@@ -128,7 +138,7 @@ You can do eg:
 ```
 $ ls | while read f
 do
-  echo "$f - "`ni-cmd get-name $f`
+  echo "$f - "`ni-get-name $f`
 done
 ```
 
@@ -139,10 +149,10 @@ When a file is ingested the name it originally had is stored.  But we do not all
 This is because of three things:
 
 1) We want files to have only one name.   
-2) You can manually set the name to whatever you want using ni-cmd rename
+2) You can manually set the name to whatever you want using ni-rename
 3) We assume the name the file already has is better than whatever the original name of the file was - you may have manually set it.
 
-Lots of times downloaded files are named things like 1.jpg.  That name shouldn't take precedence over a manually set name.  Also this data is pretty much junk.  It's a starting point if there's nothing else to stick in there for name, but not much good otherwise.  The advantages of storing it and allowing files to have more than one name seem to be less than the advantages of having one name per file, as that encourages manually setting descriptive names.    However filenames are functionally just a tag, though we ignore them during tagging so you can intelligently structure your tags to avoid disambiguation prompts, so they are not quite the same as tags.  Think of them as tags you can only see with ni-cmd get-name with the restriction that each file can only have one, though one name might refer to many different files. (eg: 1.jpg probably refers to 100 files )  
+Lots of times downloaded files are named things like 1.jpg.  That name shouldn't take precedence over a manually set name.  Also this data is pretty much junk.  It's a starting point if there's nothing else to stick in there for name, but not much good otherwise.  The advantages of storing it and allowing files to have more than one name seem to be less than the advantages of having one name per file, as that encourages manually setting descriptive names.    However filenames are functionally just a tag, though we ignore them during tagging so you can intelligently structure your tags to avoid disambiguation prompts, so they are not quite the same as tags.  Think of them as tags you can only see with ni-get-name with the restriction that each file can only have one, though one name might refer to many different files. (eg: 1.jpg probably refers to 100 files )  
 
 ### ninms
 
@@ -151,24 +161,38 @@ Mmemonic: ni names
 This is a quick and dirty ls substitute that only works on the current working directory and no other for now.  It lists the stored names of the files, falling back to the ck-xxxx.yyy name if none exists.  If you use ninms --full you get ck-xxx.yyy - storedfilenameifany format
    
 
-### ni-cmd commands
+### ni-commands
 
-Here are some commands.  These used to be standalone.  Now they must be called prefixed with ni-cmd.  
-
-```
-$ ls ~/opt/ni/ni-cmds
-delete-all  inf     nee       rename      tag
-get-name    ingest  reingest  rename-raw  untag
-```
-
-Most of these you won't use.  nee is private - don't use - use ~/opt/ni/ni instead.  Put ~/opt/ni in your path not ~/opt/ni/ni-cmds so they don't pollute your path.  These rely on ni-cmd sourcing them for access to environment, so they shouldn't be called without ni-cmd anymore.  
-
-If you want tag in your environment without having to type ni-cmd, make an alias to 'ni-cmd tag'.
-
-Here is an example of the ni-cmd inf :
+Here are some commands:
 
 ```
-$ ni-cmd inf ck-293042304320932.jpg
+$ ls ~/opt/ni | egrep ^ni
+ni
+ni-cmd
+ni-cmds
+nid3
+nid3name
+nid3q
+nid3rename
+ni-delete-all
+ni-get-name
+ni-ingest
+ninms
+ni-reingest
+ni-rename
+ni-rename-raw
+ni-tag
+ni-untag
+ni-use
+
+```
+
+Most of these you won't use.  Put ~/opt/ni in your path not ~/opt/ni/ni-cmds
+
+Here is an example of the ni-inf :
+
+```
+$ ni-inf ck-293042304320932.jpg
   
 UNIQUE_FILENAME: ck-293042304320932.jpg
 FILENAME: 3374855 - pic-of-my-dog.jpg
@@ -181,7 +205,7 @@ TAGS:
 Since this file has not been tagged, it just prints the path to the context here.  But if we tag it we can see something good.
 
 ```
-$ ni-cmd tag -d ck-293042304320932.jpg ani do 
+$ ni-tag -d ck-293042304320932.jpg ani do 
 
 Matched multiple tags:
 ----------------------
@@ -222,14 +246,14 @@ You need to set about tagging them.  Optionally, you can ingest all the files yo
 $ source ni-use pic-collection # only need to do this once 
 $ cd incoming-downloads
 # next step is optional as it is automatically by ni
-$ ni-cmd reingest  # this will eliminate duplicates,
+$ ni-reingest      # this will eliminate duplicates,
                    # put the originals under pic-collection/All renamed with their checksums to ck-checksum.ext,
                    # store the original filename under pic-collection/.meta
                    # leave you with a symlink to pic-collection/All/ck-checksum.ext for each file in incoming-downloads
 $ ni
 ```
 
-ni will get the next filename or ck-checksum.ext symlink from the listing of the current directory, open the appropriate viewer, run the ni-cmd tag -d command for you prompting you for the tags for the pic/vid/etc you are viewing and then kill the viewer for you.
+ni will get the next filename or ck-checksum.ext symlink from the listing of the current directory, open the appropriate viewer, run the ni-tag -d command for you prompting you for the tags for the pic/vid/etc you are viewing and then kill the viewer for you.
   
 then just say(type) 'ni' again and you can tag the next pic.
 
@@ -264,7 +288,7 @@ ck-238942984329843.jpg
 ck-898498443454354.jpg
 ck-3489934934584345.jpg
 oldtimey/
-definition.md  # this is a file you can create that will be converted by ni-cmd reingest 
+definition.md  # this is a file you can create that will be converted by ni-reingest 
                # to definition.html if you have pandoc installed
 definition.html # if you want to browse your collection with a web browser, 
                 # you can see a page you create describing what the tag is
@@ -277,7 +301,7 @@ ck-389432839844343534.webm  # maybe this is an old Popeye cartoon showing Olive-
 
 
 ~/sexyladies
-$ ni-cmd inf ck-389432839844343534.webm
+$ ni-inf ck-389432839844343534.webm
 
 UNIQUE_FILENAME: ck-389432839844343534.webm
 FILENAME: Olive_Oyl in HOT-LEGS.webm
@@ -308,9 +332,9 @@ $ curl -L https://tinyurl.com/y6dryb4z > 'Vintage Swimsuit.jpg' # don't do this 
 ~/sexyladies/incoming
 $ ni
 Enter tags for Vintage Swimsuit.jpg: oldt silly
-exec ni-cmd tag -d Vintage Swimsuit.jpg oldt silly
+exec ni-tag -d Vintage Swimsuit.jpg oldt silly
 THE_FILE = Vintage Swimsuit.jpg
-ni-cmd tag -d Vintage Swimsuit.jpg oldt silly Vintage Swimsuit.jpg
+ni-tag -d Vintage Swimsuit.jpg oldt silly Vintage Swimsuit.jpg
 ~/opt/ni/ni-cmds/tag: line 200: source: 1 - No matches for tag silly try creating the tag (folder) somewhere in ~/sexyladies.
 ```
 
@@ -350,10 +374,10 @@ ck-xxxxxxxx.ext name since the filenames are unique, they are looked up.
 
 ```
 ~/sexyladies/incoming
-$ ni-cmd inf ck-4161738110437836.jpg
+$ ni-inf ck-4161738110437836.jpg
 
 ~/sexyladies/incoming
-$ ni-cmd inf ck-4161738110437836.jpg
+$ ni-inf ck-4161738110437836.jpg
 UNIQUE_FILENAME: ck-4161738110437836.jpg
 FILENAME: Vintage Swimsuit.jpg
 
@@ -369,16 +393,16 @@ You don't have to type the whole tag name when tagging.  ni finds the best match
 
 Because it assumes you mean an existing tag though, you have to create new tags manually by creating the folder in your context,
 
-# ni-cmd command reference:
+# ni-command reference:
 
-## ni-cmd tag
+## ni-tag
 
 ```
-$ ni-cmd tag
+$ ni-tag
 USAGE: 
-	ni-cmd tag [-r|-d] tags and files <-- tries to guess
-	ni-cmd tag [-r|-d] files -t tags
-	ni-cmd tag [-r|-d] tags -f files
+	ni-tag [-r|-d] tags and files <-- tries to guess
+	ni-tag [-r|-d] files -t tags
+	ni-tag [-r|-d] tags -f files
 
 OPTIONS:
 	-r		Remove the tags from the files.
@@ -392,42 +416,42 @@ OPTIONS:
 ```
 
 
-## ni-cmd delete-all
+## ni-delete-all
 
 ```
-$ ni-cmd delete-all
-USAGE: ni-cmd delete-all [files to purge from context]
+$ ni-delete-all
+USAGE: ni-delete-all [files to purge from context]
 
 # for example:
-$ ni-cmd delete-all ck-xxxxxxxx.jpg ck-yyyyyyyyy.png
+$ ni-delete-all ck-xxxxxxxx.jpg ck-yyyyyyyyy.png
 
 # don't delete files that have not been ingested into context and given a ck-zzzzzzzz.xyz filename.  Just use rm instead.  delete-all purges the file from the context removing all copies.
 ```
 
-## ni-cmd get-name
+## ni-get-name
 ```
-$ ni-cmd get-name
-Usage: ni-cmd get-name file
+$ ni-get-name
+Usage: ni-get-name file
 
 # for example:
-$ ni-cmd get-name ck-xxxxxxxxxx.jpg
+$ ni-get-name ck-xxxxxxxxxx.jpg
 # returns the actual filename it had when it was ingested ( or whatever you set it to using rename
 ```
 
-## ni-cmd ingest
+## ni-ingest
 ```
-$ ni-cmd ingest
-Usage: ni-cmd ingest file
+$ ni-ingest
+Usage: ni-ingest file
 
 # ingest one file into context.
-# there is no reason to use this.  tag and other commands do this automatically.   Also ni-cmd reingest does it for all files in the 
+# there is no reason to use this.  tag and other commands do this automatically.   Also ni-reingest does it for all files in the 
 # context.
 
 # it's here for use by other ni-cmds.
 
 ```
 
-## ni-cmd reingest
+## ni-reingest
 
 This re-ingests all files into the context. 
 
@@ -437,45 +461,42 @@ But it also looks for files named <something>.md  and uses pandoc ot create <som
  
 So if you use this and want to refresh your html from your md, then issue this command.
 
-## ni-cmd untag 
+## ni-untag 
 
-This is equivalent to ni-cmd tag -r
+This is equivalent to ni-tag -r
 
-## ni-cmd nee 
-PRIVATE, DON'T USE.  use ni instead
-
-## ni-cmd rename
+## ni-rename
 Each file can have one and only one name.  This allows you to set that name manually.
 
 ```
-$ ni-cmd rename
-Usage: ni-cmd ni-cmd ck-blahblah.xxx newfilename
+$ ni-rename
+Usage: ni-rename ck-blahblah.xxx newfilename
 
 # will infer the extension =xxx from first arg. If you reverse them it will infer from the second arg.
 # however you need quotes if you have spaces in the filename in that case.
 
-$ ni-cmd rename ck-3343284329324392.jpg my dog spot
+$ ni-rename ck-3343284329324392.jpg my dog spot
 # this is ok.  renmes to "my dog spog.jpg"
 
-$ ni-cmd rename 'my dog spot' ck-37432878324332.jpg
+$ ni-rename 'my dog spot' ck-37432878324332.jpg
 # ok, I can figure out the one with the .jpg is the file you mean
 
-$ ni-cmd rename ck-3343284329324392.jpg whatever.jpg
+$ ni-rename ck-3343284329324392.jpg whatever.jpg
 # ok, same extension
 
-$ ni-cmd rename ck-3343284329324392.jpg whatever.png
+$ ni-rename ck-3343284329324392.jpg whatever.png
 # nope.  won't let you change extension  Use rename-raw instead if you mean to do that.
 ```
 
-## ni-cmd rename-raw
+## ni-rename-raw
 
 This is the same as rename but doesn't check if it's sane to do what you ask.
 
-## ni-cmd inf
+## ni-inf
 ``` 
-$ ni-cmd inf
-USAGE: ni-cmd inf file.
-$ ni-cmd inf ck-2390342304324.jpg
+$ ni-inf
+USAGE: ni-inf file.
+$ ni-inf ck-2390342304324.jpg
 # prints out all the tags the file has, and what it's original filename ( or filename you set ) was.
 ```
 

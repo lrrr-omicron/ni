@@ -60,9 +60,9 @@ CMD_NAME="tag"
 
 print_usage () {
 	echo "USAGE: "
-	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] tags and files <-- tries to guess"
-	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] files -t tags"
-	echo "	${SCRIPT_NAME} ${CMD_NAME} [-r|-d] tags -f files"
+	echo "	ni-${CMD_NAME} [-r|-d] tags and files <-- tries to guess"
+	echo "	ni-${CMD_NAME} [-r|-d] files -t tags"
+	echo "	ni-${CMD_NAME} [-r|-d] tags -f files"
 	echo
 	echo "OPTIONS:"
 	echo "	-r		Remove the tags from the files."

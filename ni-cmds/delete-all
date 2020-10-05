@@ -6,7 +6,7 @@ SCRIPT="${0}"
 SCRIPT_NAME=$(basename "${SCRIPT}")
 
 if [[ "$#" == "0" ]] ; then
-	_die "USAGE: ni-cmd delete-all [files to purge from context]"
+	_die "USAGE: ni-delete-all [files to purge from context]"
 fi
 
 if [[ "${NI_CONTEXT_DIR}" == "" ]] ; then

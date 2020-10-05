@@ -6,7 +6,7 @@
 # as quick and safe as possible.  However if the bumpers get in the way
 # set-filename called directly will still do what you want.
 # 
-# USAGE: ni-cmd rename the-filename new-meaningful-filename
+# USAGE: ni-rename the-filename new-meaningful-filename
 #
 # the-filename will be something like ck-12345.jpg
 # new-meaningful-filename will be something like my-titty-picture
@@ -23,7 +23,7 @@
 SCRIPT="${0}"
 SCRIPT_NAME=$(basename "${SCRIPT}")
 if [[ "$SCRIPT_NAME" != 'ni-cmd' ]] ; then
-	_die "Usage: ni-cmd $SCRIPT_NAME ck-blahblah.xxx newfilename"
+	_die "Usage: ni-rename ck-blahblah.xxx newfilename"
 fi
 FILENAME="${1}"
 shift
@@ -31,12 +31,12 @@ NEW_FILENAME="$@"
 
 
 if [[ "${FILENAME}" = "" ]] ; then
-	_warn "Usage: ni-cmd rename ck-blahblah.xxx newfilename"
+	_warn "Usage: ni-rename ck-blahblah.xxx newfilename"
 	_die "It's ok to reverse the arguments as long as the newfilename lacks an extension and there are only two args"
 fi
 
 if [[ "${NEW_FILENAME}" = "" ]] ; then
-	_warn "Usage: ni-cmd rename ck-blahblah.xxx newfilename"
+	_warn "Usage: ni-rename ck-blahblah.xxx newfilename"
 	_die "It's ok to reverse the arguments as long as the newfilename lacks an extension and there are only two args"
 fi
 

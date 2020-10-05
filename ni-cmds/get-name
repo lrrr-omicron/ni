@@ -5,7 +5,7 @@
 # Script: get-name
 #
 # Purpose get the original filenames of the files you've ingested. ( we weren;t storing that but now ingest does )
-# Usage: ni-cmd get-name file
+# Usage: ni-get-name file
 # 
 
 
@@ -35,11 +35,11 @@ FILENAME="${1}"
 REST="${2}"
 
 if [[ -z "${FILENAME}" ]] ; then
-	_die "Usage: ni-cmd get-name file"
+	_die "Usage: ni-get-name file"
 fi
 
 if ! [[ -z "${REST}" ]] ; then
-	_die "Usage: ni-cmd get-name file"
+	_die "Usage: ni-get-name file"
 fi
 
 if [[ ! -e "${FILENAME}" ]] ; then

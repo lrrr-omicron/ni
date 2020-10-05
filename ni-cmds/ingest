@@ -17,11 +17,11 @@
 # many files named 1.jpg.  They may be different pictures.  Links to all the 
 # files named 1.jpg will be stored in the 1.jpg folder in .meta/FILENAMES
 #
-# USAGE ni-cmd ingest file
+# USAGE ni-ingest file
 
 
 if [[ $# == "0" ]] ; then 
-	_die "USAGE ni-cmd ingest file"
+	_die "USAGE ni-ingest file"
 fi
 
 if [[ "${NI_CONTEXT_DIR}" == "" ]] ; then
