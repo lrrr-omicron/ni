@@ -55,11 +55,11 @@ for FILE in $(find -L "${FILENAME_DIR}" -type f -name "$LOOKFOR" -print | sort |
 done 
 unset IFS
 echo
+echo "CONTEXT: ${NI_CONTEXT_DIR}/"  "FILE: $LOOKFOR"   
 echo "TAGS:"
 echo "----------------------------"
 
 
-echo "${NI_CONTEXT_DIR}/"  "$LOOKFOR"   
 
 IFS=$'\n'
 for FILE in $(find -L "${NI_CONTEXT_DIR}/" \( -path ${META_DIR} -o -path ${ALL_DIR} \) -prune -o -type f -name "$LOOKFOR"   -print | sort | uniq) ; do
