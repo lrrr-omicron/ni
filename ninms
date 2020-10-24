@@ -18,7 +18,7 @@ if ! [[ "${FULL}" = "" ]] ; then
 	fi
 fi
 
-find . -maxdepth 1 -type f -o -type l -print  | while read it
+find . -maxdepth 1 -follow -type f  -print  | while read it
 do
 	fn="$(basename "${it}")"
 	sn="$(ni-cmd get-name "${it}")"
