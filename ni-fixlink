@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+LINKFILE="$1"
+LINKFILENAME="$(basename "$1")"
+LINKPOINTSTO="$(readlink "${LINKFILE}")"
+
+if [[ "${NI_CONTEXT_DIR}" = "" ]] ; then
+		>&2 echo "NI_CONTEXT_DIR was blank, source ni-use first."
+		exit 1
+fi
+
+if [[ ! -d "${NI_CONTEXT_DIR}/All" ]] ; then
+		>&2 echo "${NI_CONTEXT_DIR}/All was not a dir. Cowardly doing nothing"
+		exit 1
+fi
+
+>&2 echo "Fixing broken link: ${LINKFILE}"
+if [[ -f "${NI_CONTEXT_DIR}/All/${LINKFILENAME}" ]] ; then
+	rm "${LINKFILE}"
+	ln -s "${NI_CONTEXT_DIR}/All/${LINKFILENAME}" "${LINKFILE}"
+	>&2 echo "${LINKFILE} fixed.  Points to ${NI_CONTEXT_DIR}/All/${LINKFILENAME} now."
+elif [[ -d "${NI_CONTEXT_DIR}/All/${LINKFILENAME}" ]] ; then 
+		>&2 echo "Broken link: ${LINKFILE} NOT fixed.  ${NI_CONTEXT_DIR}/All/${LINKFILENAME} was a directory."
+else
+		>&2 echo "Broken link ${LINKFILE} NOT fixed.  Original file ${NI_CONTEXT_DIR}/All/${LINKFILENAME} missing."
+		ANSWER="N"
+		>&2 echo -n "Remove broken link to missing file? [y/N]? "
+		read ANSWER
+		if echo "${ANSWER}" | egrep -qi "^Y(ES)?$" ; then
+				>&2 echo "Removing ${LINKFILE}"
+				rm "${LINKFILE}" 
+		else
+				>&2 echo "Not removing ${LINKFILE}"
+		fi
+		>&2 echo
+fi

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+DIR="$1"
+
+if [[ "${DIR}" = "" ]] ; then
+	DIR="${NI_CONTEXT_DIR}"
+fi
+
+if [[ ! -d "${DIR}" ]] ; then
+		>&2 echo "Passed ${DIR} was not a dir. Cowardly doing nothing"
+		exit 1
+fi
+
+if [[ "${NI_CONTEXT_DIR}" = "" ]] ; then
+		>&2 echo "NI_CONTEXT_DIR was blank, source ni-use first."
+		exit 1
+fi
+
+if [[ ! -d "${NI_CONTEXT_DIR}/All" ]] ; then
+		>&2 echo "${NI_CONTEXT_DIR}/All was not a dir. Cowardly doing nothing"
+		exit 1
+fi
+
+>&2 echo "Fixing broken links in : ${DIR}"
+>&2 echo "find -L ${DIR} -type l -exec ni-fixlink "{}" \;"
+find -L "${DIR}" -type l -exec ni-fixlink "{}" \;
+>&2 echo "Done."

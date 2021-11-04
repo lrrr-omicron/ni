@@ -570,3 +570,35 @@ For use on mp3s only.  Query mp3 tags and store a filename according to the form
 This is a commonly needed operation if you're using mp3 tags.
 
 eyeD3 includes the ability to rename according to tags so I am providing something semi-similar here but for stored filenames rather than the ck-xxxx.yyy which won't be changed.
+
+## ni-fixlinks
+
+Sometimes the paths to things change.  Symbolic links do not like this... :0
+
+So to fix this do:
+
+```
+
+$ source ni-use your-context-dir
+$ ni-fixlinks
+
+```
+
+This will search for any broken links and relink them to your-context-dir/All/ck-whatever.ext
+
+Why can broken links happen?
+
+Here's how it happened to me:
+
+Keep pron and music collections on encrypted usb
+
+I have links into my usb in my home directory because /run/mnt/username/gobledeygook is a long path.   So my links go from /home/username/music into /run/mnt/username/gobledygook/music etc
+
+On my new laptop I use a different username!   So EVERY link broke because my username was in the path.
+
+Also I normally use ni by source ni-use ing into /home/username/music, but once in a while I forget and cd to /run/mnt/username/gobledygook/music, and this can leave links that point there around instead of pointing through the shorter path.  It doesn't matter till you move to a different machine with a different path.
+
+
+ni-fixlinks fixes it all up automatically when you move machines or change paths.   We know the original files are in ni-context-dir/All so any links ( even broken ones ) need to point there.  That's what ni-fixlinks does.
+
+
